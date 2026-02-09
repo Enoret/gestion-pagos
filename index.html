@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Pagos - Servicios</title>
+    <link rel="icon" href="share/favicon/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/common.css">
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><iconify-icon icon="mdi:briefcase" width="36" height="36"></iconify-icon> <span data-i18n="app.title">Gestion de Pagos</span></h1>
+            <p class="subtitle" data-i18n="app.subtitle">Control de servicios del hogar</p>
+            <div class="header-actions">
+                <button onclick="exportToCSV()" class="btn btn-small header-btn">
+                    <iconify-icon icon="mdi:file-export" width="18" height="18"></iconify-icon> <span data-i18n="nav.export_csv">Exportar CSV</span>
+                </button>
+                <a href="admin.html" class="btn btn-small header-btn" style="text-decoration: none;">
+                    <iconify-icon icon="mdi:cog" width="18" height="18"></iconify-icon> <span data-i18n="nav.admin">Admin</span>
+                </a>
+                <div id="themeToggle" class="theme-toggle-group"></div>
+            </div>
+        </header>
+
+        <div class="dashboard">
+            <div class="stat-card">
+                <div class="stat-label" data-i18n="dashboard.current_balance">Saldo Actual</div>
+                <div class="stat-value" id="currentBalance" data-i18n="dashboard.loading">Cargando...</div>
+                <div class="stat-description" id="balanceDescription" data-i18n="dashboard.fetching">Obteniendo datos...</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label" data-i18n="dashboard.total_worked">Total Trabajado</div>
+                <div class="stat-value neutral" id="totalWorked" data-i18n="dashboard.loading">Cargando...</div>
+                <div class="stat-description" id="totalHours" data-i18n="dashboard.calculating">Calculando...</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label" data-i18n="dashboard.total_paid">Total Pagado</div>
+                <div class="stat-value neutral" id="totalPaid" data-i18n="dashboard.loading">Cargando...</div>
+                <div class="stat-description" id="lastPayment" data-i18n="dashboard.no_data">Sin datos</div>
+            </div>
+        </div>
+
+        <div id="nextPaymentAlert" class="alert alert-info"></div>
+
+        <div class="main-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><iconify-icon icon="mdi:clipboard-edit" width="24" height="24"></iconify-icon> <span data-i18n="forms.register_work">Registrar Trabajo</span></h2>
+                </div>
+                <form id="workForm">
+                    <div class="form-group">
+                        <label for="workService" data-i18n="forms.service">Servicio</label>
+                        <select id="workService" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="workDate" data-i18n="forms.date">Fecha</label>
+                        <input type="date" id="workDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="workHours" data-i18n="forms.hours_worked">Horas trabajadas</label>
+                        <input type="number" id="workHours" step="0.5" min="0.5" required placeholder="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="workRate"><span data-i18n="forms.hourly_rate">Tarifa por hora</span> (&euro;)</label>
+                        <input type="number" id="workRate" step="0.5" min="0" required placeholder="12" value="12">
+                    </div>
+                    <div class="form-group">
+                        <label for="workNotes" data-i18n="forms.notes_optional">Notas (opcional)</label>
+                        <input type="text" id="workNotes" data-i18n-placeholder="forms.placeholder_notes_work" placeholder="Ej: Limpieza profunda">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;" data-i18n="forms.btn_register_work">Registrar Trabajo</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><iconify-icon icon="mdi:cash-multiple" width="24" height="24"></iconify-icon> <span data-i18n="forms.register_payment">Registrar Pago</span></h2>
+                </div>
+                <form id="paymentForm">
+                    <div class="form-group">
+                        <label for="paymentService" data-i18n="forms.service">Servicio</label>
+                        <select id="paymentService" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentDate" data-i18n="forms.payment_date">Fecha del pago</label>
+                        <input type="date" id="paymentDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentAmount"><span data-i18n="forms.amount_paid">Cantidad pagada</span> (&euro;)</label>
+                        <input type="number" id="paymentAmount" step="0.01" min="0" required placeholder="72.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentNotes" data-i18n="forms.notes_optional">Notas (opcional)</label>
+                        <input type="text" id="paymentNotes" data-i18n-placeholder="forms.placeholder_notes_payment" placeholder="Ej: No habia cambio">
+                    </div>
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;" data-i18n="forms.btn_register_payment">Registrar Pago</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="card full-width">
+                <div class="card-header">
+                    <h2 class="card-title"><iconify-icon icon="mdi:chart-line" width="24" height="24"></iconify-icon> <span data-i18n="chart.title">Evolucion del Saldo</span></h2>
+                    <div class="service-selector">
+                        <button class="service-btn active" data-service="all" data-i18n="chart.all">Todos</button>
+                        <!-- Dynamic service buttons will be populated by JS -->
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="balanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title"><iconify-icon icon="mdi:clipboard-text-clock" width="24" height="24"></iconify-icon> <span data-i18n="history.title">Historial de Movimientos</span></h2>
+                <div class="service-selector">
+                    <button class="service-btn active" data-filter="all" data-i18n="history.all">Todos</button>
+                    <!-- Dynamic filter buttons will be populated by JS -->
+                    <button class="service-btn" data-filter="work" data-i18n="history.works">Trabajos</button>
+                    <button class="service-btn" data-filter="payment" data-i18n="history.payments">Pagos</button>
+                </div>
+            </div>
+            <div id="historyContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p data-i18n="history.loading">Cargando movimientos...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de la API
+        const API_BASE = 'api/records.php';
+
+        // Estado de la aplicación
+        let records = [];
+        let services = [];
+        let currentFilter = 'all';
+        let balanceChart = null;
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', async () => {
+            await App.init();
+            loadServices();
+            loadData();
+            initializeForms();
+            setDefaultDates();
+
+            // Re-render on language change
+            document.addEventListener('langChanged', () => {
+                updateDashboard();
+                renderHistory();
+                renderChartServiceButtons();
+                renderHistoryFilterButtons();
+            });
+        });
+
+        // Cargar servicios
+        async function loadServices() {
+            try {
+                const response = await fetch('api/admin.php?action=getServices');
+                const result = await response.json();
+
+                if (result.success) {
+                    services = result.data;
+                    populateServiceSelectors();
+                }
+            } catch (error) {
+                console.error('Error cargando servicios:', error);
+                // Servicios por defecto si falla
+                services = [
+                    {name: 'Limpieza', rate: 12},
+                    {name: 'Jardinero', rate: 15}
+                ];
+                populateServiceSelectors();
+            }
+        }
+
+        // Poblar selectores de servicios
+        function populateServiceSelectors() {
+            const workSelect = document.getElementById('workService');
+            const paymentSelect = document.getElementById('paymentService');
+
+            const options = services.map(s => {
+                return `<option value="${s.name}">${s.name}</option>`;
+            }).join('');
+
+            workSelect.innerHTML = options;
+            paymentSelect.innerHTML = options;
+
+            // Establecer tarifa por defecto cuando se selecciona un servicio
+            workSelect.addEventListener('change', (e) => {
+                const service = services.find(s => s.name === e.target.value);
+                if (service && service.rate) {
+                    document.getElementById('workRate').value = service.rate;
+                }
+            });
+
+            // Establecer tarifa inicial
+            if (services.length > 0 && services[0].rate) {
+                document.getElementById('workRate').value = services[0].rate;
+            }
+
+            renderChartServiceButtons();
+            renderHistoryFilterButtons();
+        }
+
+        // Obtener icono de servicio
+        function getServiceIcon(name) {
+            return App.icons.getServiceIcon(name);
+        }
+
+        // Renderizar botones de servicio del gráfico
+        function renderChartServiceButtons() {
+            const container = document.querySelector('[data-service="all"]')?.parentElement;
+            if (!container) return;
+
+            container.innerHTML = `<button class="service-btn active" data-service="all">${App.t('chart.all')}</button>` +
+                services.map(s => `<button class="service-btn" data-service="${s.name}">${s.name}</button>`).join('');
+
+            container.querySelectorAll('[data-service]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    container.querySelectorAll('[data-service]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderChart(btn.dataset.service);
+                });
+            });
+        }
+
+        // Renderizar botones de filtro del historial
+        function renderHistoryFilterButtons() {
+            const container = document.querySelector('[data-filter="all"]')?.parentElement;
+            if (!container) return;
+
+            container.innerHTML = `<button class="service-btn active" data-filter="all">${App.t('history.all')}</button>` +
+                services.map(s => `<button class="service-btn" data-filter="${s.name}">${s.name}</button>`).join('') +
+                `<button class="service-btn" data-filter="work">${App.t('history.works')}</button>` +
+                `<button class="service-btn" data-filter="payment">${App.t('history.payments')}</button>`;
+
+            container.querySelectorAll('[data-filter]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    container.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderHistory();
+                });
+            });
+        }
+
+        // Cargar datos desde el servidor
+        async function loadData() {
+            try {
+                const response = await fetch(`${API_BASE}?path=records`);
+                const result = await response.json();
+
+                if (result.success) {
+                    records = result.data;
+                    updateDashboard();
+                    renderHistory();
+                    renderChart();
+                } else {
+                    showAlert('Error al cargar datos: ' + result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(App.t('alerts.connection_error'), 'error');
+            }
+        }
+
+        // Establecer fechas por defecto
+        function setDefaultDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('workDate').value = today;
+            document.getElementById('paymentDate').value = today;
+        }
+
+        // Inicializar formularios
+        function initializeForms() {
+            document.getElementById('workForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const data = {
+                    service: document.getElementById('workService').value,
+                    date: document.getElementById('workDate').value,
+                    hours: parseFloat(document.getElementById('workHours').value),
+                    rate: parseFloat(document.getElementById('workRate').value),
+                    notes: document.getElementById('workNotes').value
+                };
+
+                try {
+                    const response = await fetch(`${API_BASE}?path=work`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showAlert(App.t('alerts.work_registered'), 'success');
+                        e.target.reset();
+                        setDefaultDates();
+                        loadData();
+                    } else {
+                        showAlert('Error: ' + result.error, 'error');
+                    }
+                } catch (error) {
+                    showAlert(App.t('alerts.connection_error'), 'error');
+                }
+            });
+
+            document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const data = {
+                    service: document.getElementById('paymentService').value,
+                    date: document.getElementById('paymentDate').value,
+                    amount: parseFloat(document.getElementById('paymentAmount').value),
+                    notes: document.getElementById('paymentNotes').value
+                };
+
+                try {
+                    const response = await fetch(`${API_BASE}?path=payment`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showAlert(App.t('alerts.payment_registered'), 'success');
+                        e.target.reset();
+                        setDefaultDates();
+                        loadData();
+                    } else {
+                        showAlert('Error: ' + result.error, 'error');
+                    }
+                } catch (error) {
+                    showAlert(App.t('alerts.connection_error'), 'error');
+                }
+            });
+        }
+
+        // Filters are initialized dynamically in renderChartServiceButtons() and renderHistoryFilterButtons()
+
+        // Calcular saldo
+        function calculateBalance(serviceFilter = null) {
+            let balance = 0;
+            let totalWorked = 0;
+            let totalPaid = 0;
+            let totalHours = 0;
+
+            const filteredRecords = serviceFilter
+                ? records.filter(r => r.service === serviceFilter)
+                : records;
+
+            filteredRecords.forEach(record => {
+                if (record.type === 'work') {
+                    balance -= parseFloat(record.total);
+                    totalWorked += parseFloat(record.total);
+                    totalHours += parseFloat(record.hours);
+                } else if (record.type === 'payment') {
+                    balance += parseFloat(record.amount);
+                    totalPaid += parseFloat(record.amount);
+                }
+            });
+
+            return { balance, totalWorked, totalPaid, totalHours };
+        }
+
+        // Actualizar dashboard
+        function updateDashboard() {
+            const { balance, totalWorked, totalPaid, totalHours } = calculateBalance();
+
+            // Saldo actual
+            const balanceEl = document.getElementById('currentBalance');
+            balanceEl.textContent = formatCurrency(Math.abs(balance));
+
+            if (balance < 0) {
+                balanceEl.className = 'stat-value negative';
+                document.getElementById('balanceDescription').textContent = App.t('dashboard.pending_payment');
+            } else if (balance > 0) {
+                balanceEl.className = 'stat-value positive';
+                document.getElementById('balanceDescription').textContent = App.t('dashboard.overpaid');
+            } else {
+                balanceEl.className = 'stat-value neutral';
+                document.getElementById('balanceDescription').textContent = App.t('dashboard.up_to_date');
+            }
+
+            // Total trabajado
+            document.getElementById('totalWorked').textContent = formatCurrency(totalWorked);
+            document.getElementById('totalHours').textContent = `${totalHours.toFixed(1)} ${App.t('dashboard.hours_worked')}`;
+
+            // Total pagado
+            document.getElementById('totalPaid').textContent = formatCurrency(totalPaid);
+
+            const lastPaymentRecord = records
+                .filter(r => r.type === 'payment')
+                .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
+            if (lastPaymentRecord) {
+                document.getElementById('lastPayment').textContent =
+                    `${App.t('dashboard.last_payment')}: ${formatDate(lastPaymentRecord.date)}`;
+            } else {
+                document.getElementById('lastPayment').textContent = App.t('dashboard.no_payments');
+            }
+
+            // Alerta de próximo pago
+            if (balance < 0) {
+                const alert = document.getElementById('nextPaymentAlert');
+                alert.innerHTML = `<strong>${App.t('alerts.next_payment_suggested')}:</strong> ${formatCurrency(Math.abs(balance))} (${App.t('alerts.accumulated_debt')})`;
+                alert.style.display = 'block';
+                alert.className = 'alert alert-warning';
+            } else if (balance > 0) {
+                const alert = document.getElementById('nextPaymentAlert');
+                alert.innerHTML = `<strong>${App.t('alerts.next_payment')}:</strong> ${App.t('alerts.discount_next', { amount: formatCurrency(balance) })}`;
+                alert.style.display = 'block';
+                alert.className = 'alert alert-info';
+            } else {
+                document.getElementById('nextPaymentAlert').style.display = 'none';
+            }
+        }
+
+        // Renderizar historial
+        function renderHistory() {
+            const container = document.getElementById('historyContainer');
+
+            let filteredRecords = records;
+
+            if (currentFilter !== 'all') {
+                if (currentFilter === 'work' || currentFilter === 'payment') {
+                    filteredRecords = records.filter(r => r.type === currentFilter);
+                } else {
+                    filteredRecords = records.filter(r => r.service === currentFilter);
+                }
+            }
+
+            if (filteredRecords.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><iconify-icon icon="mdi:inbox-outline" width="48" height="48"></iconify-icon></div>
+                        <p>${App.t('history.empty')}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Ordenar por fecha
+            filteredRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // Calcular saldo acumulado
+            let runningBalance = 0;
+            const recordsWithBalance = filteredRecords.map(record => {
+                if (record.type === 'work') {
+                    runningBalance -= parseFloat(record.total);
+                } else {
+                    runningBalance += parseFloat(record.amount);
+                }
+                return { ...record, balanceAfter: runningBalance };
+            }).reverse();
+
+            container.innerHTML = recordsWithBalance.map(record => {
+                if (record.type === 'work') {
+                    return `
+                        <div class="history-item animate-in">
+                            <div class="history-header">
+                                <span class="history-date">${formatDate(record.date)}</span>
+                                <span class="history-type work">${record.service}</span>
+                            </div>
+                            <div class="history-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">${App.t('history.hours')}</div>
+                                    <div class="detail-value">${record.hours}h</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">${App.t('history.rate')}</div>
+                                    <div class="detail-value">${formatCurrency(record.rate)}/h</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">${App.t('history.total')}</div>
+                                    <div class="detail-value">${formatCurrency(record.total)}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">${App.t('history.balance_after')}</div>
+                                    <div class="detail-value" style="color: ${record.balanceAfter < 0 ? 'var(--danger)' : record.balanceAfter > 0 ? 'var(--success)' : 'var(--text-primary)'}">
+                                        ${formatCurrency(Math.abs(record.balanceAfter))}
+                                    </div>
+                                </div>
+                            </div>
+                            ${record.notes ? `<p style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--text-secondary);"><iconify-icon icon="mdi:note-text" width="16" height="16"></iconify-icon> ${record.notes}</p>` : ''}
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="history-item payment animate-in">
+                            <div class="history-header">
+                                <span class="history-date">${formatDate(record.date)}</span>
+                                <span class="history-type payment">${record.service}</span>
+                            </div>
+                            <div class="history-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">${App.t('history.amount_paid')}</div>
+                                    <div class="detail-value">${formatCurrency(record.amount)}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">${App.t('history.balance_after')}</div>
+                                    <div class="detail-value" style="color: ${record.balanceAfter < 0 ? 'var(--danger)' : record.balanceAfter > 0 ? 'var(--success)' : 'var(--text-primary)'}">
+                                        ${formatCurrency(Math.abs(record.balanceAfter))}
+                                    </div>
+                                </div>
+                            </div>
+                            ${record.notes ? `<p style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--text-secondary);"><iconify-icon icon="mdi:note-text" width="16" height="16"></iconify-icon> ${record.notes}</p>` : ''}
+                        </div>
+                    `;
+                }
+            }).join('');
+        }
+
+        // Renderizar gráfico
+        function renderChart(serviceFilter = 'all') {
+            const ctx = document.getElementById('balanceChart').getContext('2d');
+
+            let filteredRecords = serviceFilter === 'all'
+                ? records
+                : records.filter(r => r.service === serviceFilter);
+
+            if (filteredRecords.length === 0) {
+                if (balanceChart) {
+                    balanceChart.destroy();
+                    balanceChart = null;
+                }
+                return;
+            }
+
+            // Ordenar por fecha
+            filteredRecords.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // Calcular saldo en el tiempo
+            let balance = 0;
+            const data = filteredRecords.map(record => {
+                if (record.type === 'work') {
+                    balance -= parseFloat(record.total);
+                } else {
+                    balance += parseFloat(record.amount);
+                }
+                return {
+                    x: record.date,
+                    y: balance
+                };
+            });
+
+            // Añadir punto inicial
+            if (data.length > 0) {
+                data.unshift({ x: data[0].x, y: 0 });
+            }
+
+            if (balanceChart) {
+                balanceChart.destroy();
+            }
+
+            // Get primary color from CSS variable
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+            const primaryRgba = `rgba(${parseInt(primaryColor.substr(1, 2), 16)}, ${parseInt(primaryColor.substr(3, 2), 16)}, ${parseInt(primaryColor.substr(5, 2), 16)}, 0.1)`;
+
+            balanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: App.t('chart.balance'),
+                        data: data,
+                        borderColor: primaryColor,
+                        backgroundColor: primaryRgba,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: primaryColor,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            callbacks: {
+                                label: function(context) {
+                                    return App.t('chart.balance') + ': ' + formatCurrency(Math.abs(context.parsed.y)) +
+                                           (context.parsed.y < 0 ? ` (${App.t('chart.owes')})` : context.parsed.y > 0 ? ` (${App.t('chart.advance')})` : '');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                displayFormats: {
+                                    day: 'dd/MM'
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(Math.abs(value));
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Exportar a CSV
+        function exportToCSV() {
+            if (records.length === 0) {
+                showAlert(App.t('alerts.no_data_export'), 'warning');
+                return;
+            }
+
+            // Crear CSV con headers traducidos
+            let csv = `${App.t('csv.type')},${App.t('csv.service')},${App.t('csv.date')},${App.t('csv.hours')},${App.t('csv.rate')},${App.t('csv.total_worked')},${App.t('csv.amount_paid')},${App.t('csv.notes')}\n`;
+
+            records.forEach(record => {
+                const tipo = record.type === 'work' ? App.t('csv.work') : App.t('csv.payment');
+                const servicio = record.service;
+                const fecha = record.date;
+                const horas = record.hours || '';
+                const tarifa = record.rate || '';
+                const total = record.total || '';
+                const cantidad = record.amount || '';
+                const notas = (record.notes || '').replace(/,/g, ';');
+
+                csv += `${tipo},${servicio},${fecha},${horas},${tarifa},${total},${cantidad},"${notas}"\n`;
+            });
+
+            // Crear blob y descargar
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            const fecha = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `gestion-pagos-${fecha}.csv`);
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showAlert(App.t('alerts.csv_exported'), 'success');
+        }
+
+        // Funciones auxiliares
+        function formatCurrency(amount) {
+            return amount.toFixed(2).replace('.', ',') + ' €';
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function showAlert(message, type) {
+            const existingAlerts = document.querySelectorAll('.alert-success, .alert-error');
+            existingAlerts.forEach(a => a.remove());
+
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} animate-in`;
+            alert.textContent = message;
+
+            const container = document.querySelector('.container');
+            container.insertBefore(alert, container.children[2]);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 4000);
+        }
+    </script>
+</body>
+</html>

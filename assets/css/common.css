@@ -1,0 +1,755 @@
+/**
+ * Gestion de Pagos - Common Styles
+ * Includes: base variables, dark mode, shared components
+ */
+
+/* ==========================================
+   CSS VARIABLES - Light Mode (Default)
+   Gray tones + orange accent
+   ========================================== */
+:root {
+    --primary: #5A5A6E;
+    --primary-light: #7A7A8E;
+    --secondary: #E8750A;
+    --accent: #D13A20;
+    --bg-main: #EBEBEB;
+    --bg-card: rgba(255, 255, 255, 0.7);
+    --text-primary: #1A1A1A;
+    --text-secondary: #6B6B7B;
+    --border: rgba(0, 0, 0, 0.06);
+    --success: #86B953;
+    --warning: #E8750A;
+    --danger: #D13A20;
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 6px 24px rgba(0, 0, 0, 0.10);
+    --bg-hover: rgba(0, 0, 0, 0.04);
+    --input-bg: rgba(255, 255, 255, 0.7);
+    --chart-grid: rgba(0, 0, 0, 0.05);
+    --tooltip-bg: rgba(0, 0, 0, 0.8);
+    --overlay: rgba(255, 255, 255, 0.2);
+    --card-blur: 12px;
+    --card-border: rgba(255, 255, 255, 0.6);
+    --inner-bg: rgba(0, 0, 0, 0.03);
+    --inner-bg-hover: rgba(0, 0, 0, 0.06);
+    --alert-info-bg: rgba(33, 150, 243, 0.10);
+    --alert-info-color: #1565C0;
+    --alert-success-bg: rgba(134, 185, 83, 0.10);
+    --alert-success-color: #5A8F2A;
+    --alert-warning-bg: rgba(232, 117, 10, 0.10);
+    --alert-warning-color: #bf5504;
+    --alert-error-bg: rgba(209, 58, 32, 0.10);
+    --alert-error-color: #B22A10;
+}
+
+/* ==========================================
+   CSS VARIABLES - Dark Mode
+   Dark gray tones + orange accent
+   ========================================== */
+html[data-theme="dark"] {
+    --bg-main: #131320 !important;
+    --bg-card: rgba(255, 255, 255, 0.05) !important;
+    --text-primary: #E2E2EA !important;
+    --text-secondary: #8888A0 !important;
+    --border: rgba(255, 255, 255, 0.07) !important;
+    --shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+    --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.45);
+    --bg-hover: rgba(255, 255, 255, 0.04);
+    --input-bg: rgba(255, 255, 255, 0.06) !important;
+    --chart-grid: rgba(255, 255, 255, 0.06);
+    --tooltip-bg: rgba(20, 20, 35, 0.95);
+    --overlay: rgba(255, 255, 255, 0.08);
+    --card-border: rgba(255, 255, 255, 0.08) !important;
+    --inner-bg: rgba(255, 255, 255, 0.04);
+    --inner-bg-hover: rgba(255, 255, 255, 0.07);
+    --alert-info-bg: rgba(33, 150, 243, 0.12);
+    --alert-info-color: #64b5f6;
+    --alert-success-bg: rgba(134, 185, 83, 0.12);
+    --alert-success-color: #a5d672;
+    --alert-warning-bg: rgba(232, 117, 10, 0.12);
+    --alert-warning-color: #ffb74d;
+    --alert-error-bg: rgba(209, 58, 32, 0.12);
+    --alert-error-color: #ef6b50;
+}
+
+/* Dark mode: card title uses lighter color for contrast */
+html[data-theme="dark"] .card-title {
+    color: var(--text-primary);
+}
+
+html[data-theme="dark"] .stat-value.neutral {
+    color: var(--secondary);
+}
+
+html[data-theme="dark"] .history-date {
+    color: var(--secondary);
+}
+
+html[data-theme="dark"] .stat-box .stat-value {
+    color: var(--secondary);
+}
+
+html[data-theme="dark"] .btn-secondary {
+    color: #fff;
+}
+
+/* ==========================================
+   BASE RESET
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ==========================================
+   TYPOGRAPHY
+   ========================================== */
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-main);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+/* ==========================================
+   LAYOUT
+   ========================================== */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* ==========================================
+   HEADER
+   ========================================== */
+header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    margin-bottom: 2rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+}
+
+.subtitle {
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.header-btn {
+    background: var(--overlay) !important;
+    color: white !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-btn:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Theme toggle group - pill shape with 3 icon buttons */
+.theme-toggle-group {
+    display: inline-flex;
+    margin-left: auto;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 4px;
+    gap: 2px;
+}
+
+.theme-toggle-btn {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+}
+
+.theme-toggle-btn:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.theme-toggle-btn.active {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--primary);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================
+   CARDS
+   ========================================== */
+.card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid var(--card-border);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(var(--card-blur));
+    -webkit-backdrop-filter: blur(var(--card-blur));
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.card-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ==========================================
+   DASHBOARD STATS
+   ========================================== */
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(var(--card-blur));
+    -webkit-backdrop-filter: blur(var(--card-blur));
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-family: 'Fraunces', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.stat-value.positive { color: var(--success); }
+.stat-value.negative { color: var(--danger); }
+.stat-value.neutral { color: var(--primary); }
+
+.stat-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* ==========================================
+   GRID LAYOUTS
+   ========================================== */
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.main-grid > .card {
+    display: flex;
+    flex-direction: column;
+}
+
+.main-grid > .card > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.main-grid > .card > form > .btn {
+    margin-top: auto;
+}
+
+@media (max-width: 968px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+/* ==========================================
+   BUTTONS
+   ========================================== */
+.btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: var(--shadow);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--primary-light);
+}
+
+.btn-secondary {
+    background: var(--secondary);
+    color: var(--text-primary);
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* ==========================================
+   SERVICE SELECTOR
+   ========================================== */
+.service-selector {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.service-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--border);
+    background: var(--inner-bg);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+.service-btn:hover {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: white;
+}
+
+.service-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* ==========================================
+   FORMS
+   ========================================== */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+input, select {
+    width: 100%;
+    padding: 0.875rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.2s, background 0.3s;
+    background: var(--input-bg);
+    color: var(--text-primary);
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* ==========================================
+   HISTORY
+   ========================================== */
+.history-item {
+    padding: 1.5rem;
+    background: var(--inner-bg);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--primary);
+    transition: all 0.2s;
+}
+
+.history-item:hover {
+    background: var(--inner-bg-hover);
+    transform: translateX(4px);
+}
+
+.history-item.payment {
+    border-left-color: var(--secondary);
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.history-date {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.history-type {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.history-type.work {
+    background: var(--primary);
+    color: white;
+}
+
+.history-type.payment {
+    background: var(--secondary);
+    color: white;
+}
+
+.history-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+
+.detail-item {
+    font-size: 0.875rem;
+}
+
+.detail-label {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.detail-value {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+/* ==========================================
+   CHART
+   ========================================== */
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-top: 1rem;
+}
+
+/* ==========================================
+   ALERTS
+   ========================================== */
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert-info {
+    background: var(--alert-info-bg);
+    border-color: #2196F3;
+    color: var(--alert-info-color);
+}
+
+.alert-success {
+    background: var(--alert-success-bg);
+    border-color: var(--success);
+    color: var(--alert-success-color);
+}
+
+.alert-warning {
+    background: var(--alert-warning-bg);
+    border-color: var(--warning);
+    color: var(--alert-warning-color);
+}
+
+.alert-error {
+    background: var(--alert-error-bg);
+    border-color: var(--danger);
+    color: var(--alert-error-color);
+}
+
+/* ==========================================
+   LOADING & EMPTY STATES
+   ========================================== */
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+}
+
+.spinner {
+    border: 3px solid var(--border);
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+}
+
+/* ==========================================
+   ADMIN - Stats Grid
+   ========================================== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-box {
+    background: var(--inner-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-box .stat-value {
+    font-size: 2rem;
+    color: var(--primary);
+}
+
+/* ==========================================
+   ADMIN - Services
+   ========================================== */
+.service-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--inner-bg);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s;
+}
+
+.service-item:hover {
+    background: var(--inner-bg-hover);
+    transform: translateX(4px);
+}
+
+.service-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.service-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    min-width: 150px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.service-rate {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.service-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* ==========================================
+   ADMIN - Backups
+   ========================================== */
+.backup-item {
+    padding: 1rem;
+    background: var(--inner-bg);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ==========================================
+   ANIMATIONS
+   ========================================== */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ==========================================
+   MISC
+   ========================================== */
+#nextPaymentAlert {
+    display: none;
+}
+
+.icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Iconify icons vertical alignment */
+iconify-icon {
+    vertical-align: middle;
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+@media (max-width: 600px) {
+    .container {
+        padding: 1rem;
+    }
+
+    header {
+        padding: 1.5rem 1rem;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .header-actions {
+        gap: 0.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        padding: 1.5rem;
+    }
+}
