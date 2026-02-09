@@ -1,314 +1,182 @@
-# 💼 Gestión de Pagos - Sistema de Control de Servicios
+# Gestion de Pagos
 
-Sistema completo de gestión de pagos para servicios del hogar (limpieza, jardinero, etc.) con seguimiento de saldo acumulado.
+Lightweight web application for managing household service payments. Track work hours, payments, and balances for services like cleaning, gardening, and more.
 
-## 🎯 Características
+[![Docker Hub](https://img.shields.io/docker/pulls/mbraut/gestion-pagos?label=Docker%20Hub&logo=docker)](https://hub.docker.com/r/mbraut/gestion-pagos)
 
-- ✅ Registro de trabajos realizados (horas y tarifas)
-- ✅ Registro de pagos efectuados
-- ✅ Control automático de saldo acumulado
-- ✅ Gráficos de evolución del saldo
-- ✅ Historial completo de movimientos
-- ✅ Filtros por servicio y tipo
-- ✅ Backups automáticos
-- ✅ Interfaz responsive (móvil, tablet, PC)
-- ✅ Base de datos SQLite (ligera y sin configuración)
+## Screenshots
 
-## 📋 Requisitos
+### Light Mode
+![Light Mode](screenshots/light.png)
 
-- Servidor web Apache
-- PHP 7.4 o superior con extensiones:
-  - PDO
-  - SQLite3
-- Navegador web moderno
+### Dark Mode
+![Dark Mode](screenshots/dark.png)
 
-## 🚀 Instalación
+## Features
 
-### 1. Copiar archivos al servidor
+- Register work entries (hours, rates, notes) and payments
+- Real-time balance dashboard with payment alerts
+- Interactive balance evolution chart (Chart.js)
+- Full movement history with filters by service and type
+- CSV export
+- Admin panel: service management, backups, theme customization, maintenance
+- Light/dark theme with automatic system detection
+- Multi-language (Spanish/English) with automatic browser detection
+- MDI icons via Iconify
+- Customizable color scheme from the admin panel
+- SQLite database (no external dependencies)
+- Responsive design (mobile, tablet, desktop)
 
-```bash
-# Copiar todo el directorio al servidor Apache
-sudo cp -r gestion-pagos /var/www/html/
-
-# Dar permisos al directorio de datos
-sudo chmod 755 /var/www/html/gestion-pagos/data
-sudo chmod 755 /var/www/html/gestion-pagos/data/backups
-sudo chown www-data:www-data /var/www/html/gestion-pagos/data
-sudo chown www-data:www-data /var/www/html/gestion-pagos/data/backups
-```
-
-### 2. Verificar permisos
+## Quick Start with Docker
 
 ```bash
-# Verificar que Apache pueda escribir en el directorio de datos
-ls -la /var/www/html/gestion-pagos/data/
+docker run -d \
+  -p 8080:80 \
+  -v gestion-pagos-data:/var/www/html/data \
+  --name gestion-pagos \
+  --restart unless-stopped \
+  mbraut/gestion-pagos:latest
 ```
 
-### 3. Acceder a la aplicación
+Open `http://localhost:8080` in your browser.
 
-Abre tu navegador y ve a:
+### Docker Compose / Portainer Stack
+
+```yaml
+services:
+  gestion-pagos:
+    image: mbraut/gestion-pagos:latest
+    container_name: gestion-pagos
+    ports:
+      - "8080:80"
+    volumes:
+      - gestion-pagos-data:/var/www/html/data
+    restart: unless-stopped
+
+volumes:
+  gestion-pagos-data:
 ```
-http://localhost/gestion-pagos/
-# O desde otro dispositivo en tu red:
-http://IP_DE_TU_SERVIDOR/gestion-pagos/
-```
 
-## 📥 Importar datos existentes
-
-Si ya tienes datos en un Excel:
-
-1. Ve a: `http://localhost/gestion-pagos/api/import.php`
-2. Exporta tu Google Sheet como CSV
-3. El script te guiará en el proceso de importación
-
-O ejecuta directamente desde línea de comandos:
 ```bash
-php /var/www/html/gestion-pagos/api/import.php
+docker compose up -d
 ```
 
-## 🔧 Configuración
+## Manual Installation
 
-Edita `api/config.php` para personalizar:
+### Requirements
 
-```php
-// Tipos de servicios disponibles
-define('SERVICES', ['Limpieza', 'Jardinero', 'Piscina']);
+- PHP 8.0+ with PDO and SQLite3 extensions
+- Apache with mod_rewrite enabled
+- Modern web browser
 
-// Configuración de backups
-define('BACKUP_ENABLED', true);
-define('BACKUP_FREQUENCY', 'weekly'); // daily, weekly, monthly
+### Steps
+
+1. Copy files to web server root:
+
+```bash
+sudo cp -r gestion-pagos/* /var/www/html/
 ```
 
-## 📁 Estructura de archivos
+2. Set permissions:
+
+```bash
+sudo chown -R www-data:www-data /var/www/html/
+```
+
+3. Enable mod_rewrite:
+
+```bash
+sudo a2enmod rewrite
+sudo systemctl restart apache2
+```
+
+4. Open `http://your-server/` in your browser.
+
+## Project Structure
 
 ```
 gestion-pagos/
-├── index.html              # Pagina principal (dashboard, formularios, historial)
-├── admin.html              # Panel de administracion
-├── .htaccess               # Configuracion Apache (seguridad, cache, rutas)
+├── index.html              # Main page (dashboard, forms, history)
+├── admin.html              # Admin panel
+├── .htaccess               # Apache config (security, cache, routes)
 ├── api/
-│   ├── config.php          # Configuracion general y funciones auxiliares
-│   ├── database.php        # Clase Database (CRUD SQLite)
-│   ├── records.php         # API de registros (trabajos y pagos)
-│   ├── admin.php           # API de administracion (servicios, tema, backups)
-│   └── import.php          # Importacion de datos
+│   ├── config.php          # General config and helper functions
+│   ├── database.php        # Database class (SQLite CRUD)
+│   ├── records.php         # Records API (work and payments)
+│   ├── admin.php           # Admin API (services, theme, backups)
+│   └── import.php          # Data import
 ├── assets/
 │   ├── css/
-│   │   └── common.css      # Estilos compartidos (variables, dark mode, componentes)
+│   │   └── common.css      # Shared styles (variables, dark mode, components)
 │   ├── js/
-│   │   └── app.js          # Modulo JS compartido (i18n, tema, iconos)
+│   │   └── app.js          # Shared JS module (i18n, theme, icons)
 │   └── lang/
-│       ├── es.json         # Traducciones en espanol
-│       └── en.json         # Traducciones en ingles
+│       ├── es.json         # Spanish translations
+│       └── en.json         # English translations
 ├── data/
-│   ├── pagos.db            # Base de datos SQLite
-│   ├── services.json       # Configuracion de servicios
-│   ├── theme.json          # Tema personalizado
-│   └── backups/            # Backups automaticos de la BD
-├── docker/
-│   ├── Dockerfile          # Imagen Docker (php:8.2-apache)
-│   ├── docker-compose.yml  # Orquestacion de contenedores
-│   └── .dockerignore       # Exclusiones para build
-├── share/
-│   └── favicon/
-│       └── favicon.ico
-└── README.md
+│   ├── pagos.db            # SQLite database
+│   ├── services.json       # Service configuration
+│   ├── theme.json          # Custom theme colors
+│   └── backups/            # Automatic database backups
+└── share/
+    └── favicon/
+        └── favicon.ico
 ```
 
-## 🔄 API Endpoints
+## API Reference
 
-### GET - Obtener registros
-```bash
-GET /api/records.php?path=records
-GET /api/records.php?path=records&service=Limpieza
-GET /api/records.php?path=stats
-GET /api/records.php?path=record/123
-```
+### Records (api/records.php)
 
-### POST - Crear registros
-```bash
-POST /api/records.php?path=work
-{
-  "service": "Limpieza",
-  "date": "2026-02-04",
-  "hours": 6,
-  "rate": 12,
-  "notes": "Limpieza profunda"
-}
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `?path=records` | Get all records |
+| GET | `?path=records&service=X` | Filter by service |
+| GET | `?path=stats` | General statistics |
+| GET | `?path=backup` | Create database backup |
+| POST | `?path=work` | Register work entry |
+| POST | `?path=payment` | Register payment |
+| PUT | `?path=record/{id}` | Update record |
+| DELETE | `?path=record/{id}` | Delete record |
 
-POST /api/records.php?path=payment
-{
-  "service": "Limpieza",
-  "date": "2026-02-04",
-  "amount": 72,
-  "notes": "Pago completo"
-}
-```
+### Admin (api/admin.php)
 
-### PUT - Actualizar registro
-```bash
-PUT /api/records.php?path=record/123
-{
-  "hours": 7,
-  "notes": "Actualización"
-}
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `?action=getServices` | List services |
+| GET | `?action=getStats` | System statistics |
+| POST | `action: addService` | Add service |
+| POST | `action: updateService` | Update service |
+| POST | `action: deleteService` | Delete service |
+| POST | `action: optimizeDB` | Optimize database |
+| POST | `action: cleanBackups` | Clean old backups |
+| POST | `action: saveTheme` | Save custom theme |
+| POST | `action: deleteTheme` | Reset theme |
+| POST | `action: deleteAllRecords` | Delete all records |
 
-### DELETE - Eliminar registro
-```bash
-DELETE /api/records.php?path=record/123
-```
+## Data Persistence
 
-## 💾 Backups
+All application data is stored in `/var/www/html/data`:
 
-Los backups se crean automáticamente y se almacenan en `data/backups/`
+| File | Description |
+|------|-------------|
+| `pagos.db` | SQLite database (records, balances) |
+| `services.json` | Service configuration |
+| `theme.json` | Custom theme colors |
+| `backups/` | Automatic database backups |
 
-Manual:
-```bash
-# Desde la interfaz web
-Clic en "Crear Backup" en el header
+When using Docker, mount a volume to `/var/www/html/data` to persist data across container restarts.
 
-# O vía API
-GET /api/records.php?path=backup
-```
+## Tech Stack
 
-Restaurar un backup:
-```bash
-cp data/backups/backup_2026-02-04_123456.db data/pagos.db
-```
+| Component | Technology |
+|-----------|------------|
+| Backend | PHP 8.2 + SQLite3 |
+| Frontend | HTML5, CSS3, Vanilla JavaScript |
+| Charts | Chart.js 4 |
+| Icons | Iconify MDI |
+| Fonts | DM Sans + Fraunces (Google Fonts) |
+| Container | Docker (php:8.2-apache) |
 
-## 🔒 Seguridad (Recomendaciones)
+## License
 
-### 1. Añadir autenticación básica
-
-Crea archivo `.htaccess` en el directorio:
-```apache
-AuthType Basic
-AuthName "Gestión de Pagos"
-AuthUserFile /var/www/html/gestion-pagos/.htpasswd
-Require valid-user
-```
-
-Crear archivo de contraseñas:
-```bash
-sudo htpasswd -c /var/www/html/gestion-pagos/.htpasswd usuario
-```
-
-### 2. HTTPS (opcional)
-
-Si tienes certificado SSL, configura Apache para usar HTTPS.
-
-### 3. Acceso solo desde red local
-
-En tu configuración de Apache:
-```apache
-<Directory /var/www/html/gestion-pagos>
-    Require ip 192.168.0.0/24
-</Directory>
-```
-
-## 🌐 Acceso desde dispositivos móviles
-
-Para acceder desde tu móvil o tablet en la misma red:
-
-1. Encuentra la IP de tu servidor:
-```bash
-ip addr show
-```
-
-2. Accede desde el móvil:
-```
-http://192.168.X.X/gestion-pagos/
-```
-
-3. (Opcional) Añade a la pantalla de inicio para acceso rápido
-
-## 🐛 Solución de problemas
-
-### La base de datos no se crea
-```bash
-# Verificar permisos
-ls -la /var/www/html/gestion-pagos/data/
-sudo chown -R www-data:www-data /var/www/html/gestion-pagos/data/
-```
-
-### Errores de PHP
-```bash
-# Ver logs de Apache
-sudo tail -f /var/log/apache2/error.log
-```
-
-### No aparecen los datos
-```bash
-# Verificar que la base de datos existe
-ls -la /var/www/html/gestion-pagos/data/pagos.db
-
-# Ver contenido de la base de datos
-sqlite3 /var/www/html/gestion-pagos/data/pagos.db "SELECT * FROM records;"
-```
-
-## 🔄 Actualización
-
-Para actualizar a una nueva versión:
-
-1. Hacer backup de la base de datos
-```bash
-cp /var/www/html/gestion-pagos/data/pagos.db ~/backup_pagos.db
-```
-
-2. Actualizar archivos
-```bash
-# Reemplazar archivos excepto el directorio data/
-```
-
-3. Verificar que todo funciona
-
-## 📊 Exportar datos
-
-Para exportar todos los datos a CSV:
-
-```bash
-sqlite3 -header -csv /var/www/html/gestion-pagos/data/pagos.db "SELECT * FROM records;" > export.csv
-```
-
-## 🎨 Personalización
-
-### Cambiar colores
-
-Edita las variables CSS en `index.html`:
-```css
-:root {
-    --primary: #2D5F5D;
-    --secondary: #E8B86D;
-    --accent: #C97064;
-}
-```
-
-### Añadir nuevos servicios
-
-Edita `api/config.php`:
-```php
-define('SERVICES', ['Limpieza', 'Jardinero', 'Piscina', 'Electricista']);
-```
-
-## 📞 Soporte
-
-Para reportar problemas o sugerencias, contacta al administrador del sistema.
-
-## 📝 Changelog
-
-### v1.0.0 (2026-02-04)
-- ✨ Versión inicial
-- ✅ Registro de trabajos y pagos
-- ✅ Control de saldo acumulado
-- ✅ Gráficos interactivos
-- ✅ Sistema de backups
-- ✅ API REST completa
-
-## 📄 Licencia
-
-Uso privado - Sistema desarrollado para gestión personal del hogar.
-
----
-
-**Desarrollado con ❤️ para hacer la gestión del hogar más fácil**
+Private use - Developed for personal household management.
