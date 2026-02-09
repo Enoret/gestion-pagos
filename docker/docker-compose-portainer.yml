@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  gestion-pagos:
+    image: mbraut/gestion-pagos:latest
+    container_name: gestion-pagos
+    ports:
+      - "8080:80"
+    volumes:
+      - gestion-pagos-data:/var/www/html/data
+    restart: unless-stopped
+
+volumes:
+  gestion-pagos-data:
