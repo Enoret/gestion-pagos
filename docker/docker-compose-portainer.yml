@@ -1,6 +1,6 @@
 services:
   gestion-pagos:
-    image: mbraut/gestion-pagos:2.2.0   # Cambia a :latest para recibir actualizaciones automáticas
+    image: mbraut/gestion-pagos:2.2.1   # Cambia a :latest para recibir actualizaciones automáticas
     container_name: gestion-pagos
     ports:
       - "8080:80"

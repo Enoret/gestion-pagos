@@ -18,7 +18,7 @@ define('BACKUP_FREQUENCY', 'weekly'); // daily, weekly, monthly
 // Tipos de servicios disponibles
 define('SERVICES', ['Limpieza', 'Jardinero']);
 
-define('APP_RELEASE', '2.2.0');
+define('APP_RELEASE', '2.2.1');
 
 // Configuración de seguridad
 header('Content-Type: application/json; charset=utf-8');

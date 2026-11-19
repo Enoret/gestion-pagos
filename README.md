@@ -3,7 +3,7 @@
 Aplicación web ligera para gestionar pagos de servicios del hogar. Registra horas trabajadas, pagos y saldo pendiente para servicios como limpieza, jardinería y más.
 
 [![Docker Hub](https://img.shields.io/docker/pulls/mbraut/gestion-pagos?label=Docker%20Hub&logo=docker)](https://hub.docker.com/r/mbraut/gestion-pagos)
-[![Version](https://img.shields.io/badge/version-2.2.0-blue)](https://hub.docker.com/r/mbraut/gestion-pagos/tags)
+[![Version](https://img.shields.io/badge/version-2.2.1-blue)](https://hub.docker.com/r/mbraut/gestion-pagos/tags)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ---
@@ -47,7 +47,7 @@ Abre `http://localhost:8080` en tu navegador.
 ```yaml
 services:
   gestion-pagos:
-    image: mbraut/gestion-pagos:2.2.0   # o :latest para actualizaciones automáticas
+    image: mbraut/gestion-pagos:2.2.1   # o :latest para actualizaciones automáticas
     container_name: gestion-pagos
     ports:
       - "8080:80"
@@ -177,7 +177,6 @@ gestion-pagos/
 │   ├── database.php        # Clase Database (SQLite CRUD + estadísticas)
 │   ├── records.php         # API de registros (trabajos y pagos)
 │   ├── admin.php           # API admin (servicios, tema, backups, Telegram)
-│   ├── import.php          # Importación de datos
 │   ├── telegram_notify.php # Script cron para notificaciones Telegram
 │   ├── mcp.php             # Servidor MCP (Streamable HTTP) para agentes IA
 │   ├── mcp_tools.php       # Herramientas MCP (fuente única para servidor y documentación)
@@ -267,6 +266,9 @@ gestion-pagos/
 ---
 
 ## Changelog
+
+### v2.2.1 — Noviembre 2026
+- 🔒 Eliminado `api/import.php`, un script antiguo de importación desde Excel: abrirlo con `?import` insertaba un movimiento de ejemplo en la base de datos. Para importar, usa *Admin → Mantenimiento → Importar JSON*
 
 ### v2.2.0 — Noviembre 2026
 - ✨ Personas por servicio (p. ej. la chica de la limpieza): tarifa propia, saldo individual, alta y baja desde el admin; los movimientos existentes se asignan automáticamente
