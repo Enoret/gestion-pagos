@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Admin - Gestión de Pagos</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/common.css">
-    <link rel="icon" href="share/favicon/favicon.ico">
+    <link rel="stylesheet" href="assets/css/common.css?v=2.2.0">
+    <link rel="icon" href="logo_gestion-pagos.ico">
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 </head>
 <body>
@@ -26,7 +26,7 @@
         </div>
 
         <!-- Estadísticas del Sistema -->
-        <div class="dashboard" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="dashboard dashboard-4">
             <div class="stat-card">
                 <div class="stat-card-icon"><iconify-icon icon="mdi:tools" width="24" height="24"></iconify-icon></div>
                 <div class="stat-card-body">
@@ -88,6 +88,60 @@
                 <div class="empty-state">
                     <p data-i18n="history.loading">Cargando servicios...</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- Personas -->
+        <div class="card" id="workersCard">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <iconify-icon icon="mdi:account-group" width="24" height="24"></iconify-icon>
+                    Personas
+                </h2>
+                <button onclick="showWorkerForm()" class="btn btn-secondary btn-small" id="btnNewWorker">
+                    <iconify-icon icon="mdi:account-plus" width="16" height="16"></iconify-icon>
+                    Nueva persona
+                </button>
+            </div>
+
+            <p class="mcp-intro">
+                Quién hace cada servicio (p. ej. la chica de la limpieza). Cada persona tiene su tarifa y su propio saldo.
+                Si cambias de persona, da de baja a la anterior: sus datos se conservan y la nueva empieza desde 0.
+            </p>
+
+            <div id="workerForm" class="notif-form-panel" style="display:none;">
+                <input type="hidden" id="workerEditId" value="">
+                <div class="form-row" style="margin-bottom:0.75rem;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="workerName">Nombre</label>
+                        <input type="text" id="workerName" placeholder="Ej: Isis" maxlength="60">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="workerService">Servicio</label>
+                        <select id="workerService" onchange="suggestWorkerRate()"></select>
+                    </div>
+                </div>
+                <div class="form-row" style="margin-bottom:0.75rem;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="workerRate">Tarifa (€/h)</label>
+                        <input type="number" id="workerRate" step="0.5" min="0" placeholder="12.00">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="workerNotes">Notas (opcional)</label>
+                        <input type="text" id="workerNotes" placeholder="Ej: teléfono, días que viene…" maxlength="200">
+                    </div>
+                </div>
+                <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+                    <button onclick="hideWorkerForm()" class="btn btn-small">Cancelar</button>
+                    <button onclick="saveWorker()" class="btn btn-primary btn-small">
+                        <iconify-icon icon="mdi:check" width="16" height="16"></iconify-icon>
+                        <span id="workerSaveLabel">Añadir persona</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="workersList">
+                <div class="empty-state"><p>Cargando…</p></div>
             </div>
         </div>
 
@@ -191,6 +245,137 @@
             </div>
         </div>
 
+        <!-- Agentes IA (MCP) -->
+        <div class="card" id="mcpCard">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <iconify-icon icon="mdi:robot-outline" width="24" height="24"></iconify-icon>
+                    Agentes IA (MCP)
+                </h2>
+                <button onclick="showNewApiKey()" class="btn btn-secondary btn-small" id="btnNewApiKey">
+                    <iconify-icon icon="mdi:key-plus" width="16" height="16"></iconify-icon>
+                    Nueva API key
+                </button>
+            </div>
+
+            <p class="mcp-intro">
+                Conecta un agente IA (p. ej. Hermes) para que registre horas y pagos y consulte el saldo.
+                Cada agente usa su propia API key; puedes revocarla en cualquier momento.
+            </p>
+
+            <div class="mcp-urls">
+                <div class="mcp-url-row">
+                    <span class="mcp-url-label">Endpoint MCP</span>
+                    <code id="mcpEndpoint"></code>
+                    <button class="btn-edit" onclick="copyText(document.getElementById('mcpEndpoint').textContent, this)" title="Copiar"><iconify-icon icon="mdi:content-copy" width="14" height="14"></iconify-icon></button>
+                </div>
+                <div class="mcp-url-row">
+                    <span class="mcp-url-label">Documentación</span>
+                    <code id="mcpDocsPage"></code>
+                    <a class="btn-edit" id="mcpDocsPageLink" target="_blank" title="Abrir"><iconify-icon icon="mdi:open-in-new" width="14" height="14"></iconify-icon></a>
+                </div>
+                <div class="mcp-url-row">
+                    <span class="mcp-url-label">Markdown para el agente</span>
+                    <code id="mcpDocsMd"></code>
+                    <button class="btn-edit" onclick="copyText(document.getElementById('mcpDocsMd').textContent, this)" title="Copiar"><iconify-icon icon="mdi:content-copy" width="14" height="14"></iconify-icon></button>
+                    <a class="btn-edit" id="mcpDocsMdLink" target="_blank" title="Abrir"><iconify-icon icon="mdi:open-in-new" width="14" height="14"></iconify-icon></a>
+                </div>
+            </div>
+
+            <!-- Formulario nueva key -->
+            <div id="newApiKeyForm" class="notif-form-panel" style="display:none;">
+                <div class="form-row" style="margin-bottom:0.75rem;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="apiKeyName">Nombre del agente</label>
+                        <input type="text" id="apiKeyName" placeholder="Ej: Hermes" maxlength="60">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="apiKeyScope">Permisos</label>
+                        <select id="apiKeyScope">
+                            <option value="write">Lectura y escritura (registrar horas y pagos)</option>
+                            <option value="read">Solo lectura (consultar saldo y movimientos)</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+                    <button onclick="hideNewApiKey()" class="btn btn-small">Cancelar</button>
+                    <button onclick="createApiKey()" class="btn btn-primary btn-small">
+                        <iconify-icon icon="mdi:key-plus" width="16" height="16"></iconify-icon>
+                        Crear API key
+                    </button>
+                </div>
+            </div>
+
+            <!-- Key recién creada (solo se muestra una vez) -->
+            <div id="newApiKeyResult" class="mcp-new-key" style="display:none;">
+                <div class="mcp-new-key-title">
+                    <iconify-icon icon="mdi:alert-circle-outline" width="16" height="16"></iconify-icon>
+                    Copia la API key ahora: no se volverá a mostrar.
+                </div>
+                <div class="mcp-url-row">
+                    <code id="newApiKeyValue"></code>
+                    <button class="btn-edit" onclick="copyText(document.getElementById('newApiKeyValue').textContent, this)" title="Copiar"><iconify-icon icon="mdi:content-copy" width="14" height="14"></iconify-icon></button>
+                </div>
+
+                <div class="mcp-steps-head">
+                    <span class="mcp-steps-title"><iconify-icon icon="mdi:robot-outline" width="16" height="16"></iconify-icon> Qué pasarle al agente</span>
+                    <button class="btn btn-primary btn-small" onclick="copyText(document.getElementById('newApiKeyMessage').textContent, this)">
+                        <iconify-icon icon="mdi:content-copy" width="15" height="15"></iconify-icon> Copiar todo para el agente
+                    </button>
+                </div>
+                <p class="mcp-step-hint">Lo más fácil: pulsa <strong>Copiar todo para el agente</strong> y pégaselo a Hermes en un mensaje. Incluye la conexión, la key y las instrucciones. O hazlo paso a paso:</p>
+
+                <div class="mcp-step">
+                    <span class="mcp-step-num">1</span>
+                    <div class="mcp-step-body">
+                        <div class="mcp-config-head">
+                            <span class="mcp-url-label">Añade el servidor MCP en la configuración del agente</span>
+                            <button class="btn-edit" onclick="copyText(document.getElementById('newApiKeyConfig').textContent, this)" title="Copiar"><iconify-icon icon="mdi:content-copy" width="14" height="14"></iconify-icon></button>
+                        </div>
+                        <pre class="mcp-config" id="newApiKeyConfig"></pre>
+                    </div>
+                </div>
+
+                <div class="mcp-step">
+                    <span class="mcp-step-num">2</span>
+                    <div class="mcp-step-body">
+                        <div class="mcp-config-head">
+                            <span class="mcp-url-label">Pásale las instrucciones de uso</span>
+                            <button class="btn-edit" onclick="copyText(document.getElementById('newApiKeyInstructions').textContent, this)" title="Copiar"><iconify-icon icon="mdi:content-copy" width="14" height="14"></iconify-icon></button>
+                        </div>
+                        <pre class="mcp-config mcp-instructions" id="newApiKeyInstructions"></pre>
+                        <div class="mcp-step-hint">Documentación completa para el agente: <a id="newApiKeyDocsLink" target="_blank"></a></div>
+                    </div>
+                </div>
+
+                <div class="mcp-step">
+                    <span class="mcp-step-num">3</span>
+                    <div class="mcp-step-body">
+                        <span class="mcp-url-label">Pruébalo</span>
+                        <div class="mcp-step-hint">Pregúntale <em>«¿Cuánto le debo a la de la limpieza?»</em> y después <em>«Hoy ha venido 3 horas»</em>. Lo que registre aparecerá en el historial con un 🤖.</div>
+                    </div>
+                </div>
+
+                <pre id="newApiKeyMessage" style="display:none;"></pre>
+                <div style="display:flex; justify-content:flex-end;">
+                    <button onclick="document.getElementById('newApiKeyResult').style.display='none'" class="btn btn-small">Hecho, ya la he copiado</button>
+                </div>
+            </div>
+
+            <div class="mcp-config-head">
+                <span class="mcp-url-label">Configuración de ejemplo</span>
+                <button class="btn-edit" onclick="copyText(document.getElementById('mcpConfigExample').textContent, this)" title="Copiar"><iconify-icon icon="mdi:content-copy" width="14" height="14"></iconify-icon></button>
+            </div>
+            <pre class="mcp-config" id="mcpConfigExample"></pre>
+
+            <div class="mcp-config-head" style="margin-top:1rem;">
+                <span class="mcp-url-label">API keys</span>
+            </div>
+            <div id="apiKeysList">
+                <div class="empty-state"><p>Cargando…</p></div>
+            </div>
+        </div>
+
         <!-- Gestión de Backups -->
         <div class="card">
             <div class="card-header">
@@ -284,7 +469,7 @@
                         <iconify-icon icon="mdi:home-currency-usd" width="32" height="32" style="color:var(--primary);"></iconify-icon>
                         <div>
                             <div style="font-weight:700; font-size:1.05rem; color:var(--text-primary);">Gestión de Pagos</div>
-                            <div style="font-size:0.8rem; color:var(--text-secondary);">Versión 2.0.0</div>
+                            <div style="font-size:0.8rem; color:var(--text-secondary);">Versión 2.2.0</div>
                         </div>
                     </div>
                     <p style="font-size:0.82rem; color:var(--text-secondary); margin:0; line-height:1.5;">
@@ -295,7 +480,7 @@
                 <div style="display:flex; flex-direction:column; gap:0.4rem; font-size:0.82rem; color:var(--text-secondary);">
                     <div style="display:flex; gap:0.5rem; align-items:center;">
                         <iconify-icon icon="mdi:tag-outline" width="15" height="15"></iconify-icon>
-                        <span><strong>Versión:</strong> 2.0.0</span>
+                        <span><strong>Versión:</strong> 2.2.0</span>
                     </div>
                     <div style="display:flex; gap:0.5rem; align-items:center;">
                         <iconify-icon icon="mdi:layers-outline" width="15" height="15"></iconify-icon>
@@ -315,13 +500,16 @@
                     </div>
                 </div>
                 <div style="display:flex; flex-direction:column; gap:0.4rem; font-size:0.82rem;">
-                    <div style="font-weight:600; color:var(--text-primary); margin-bottom:0.2rem;">Novedades v2.0</div>
+                    <div style="font-weight:600; color:var(--text-primary); margin-bottom:0.2rem;">Novedades v2.2</div>
                     <div style="color:var(--text-secondary); display:flex; flex-direction:column; gap:0.25rem; line-height:1.5;">
+                        <span>✓ Personas por servicio con tarifa y saldo individual</span>
+                        <span>✓ Servidor MCP para agentes IA con API keys</span>
+                        <span>✓ Historial compacto, nuevo gráfico y filtros rápidos</span>
                         <span>✓ Notificaciones automáticas por Telegram con cron Docker</span>
                         <span>✓ Iconos personalizados por servicio</span>
                         <span>✓ Backups automáticos y restauración</span>
                         <span>✓ Exportación JSON y CSV</span>
-                        <span>✓ Soporte multi-idioma (ES / EN / CA)</span>
+                        <span>✓ Soporte multi-idioma (ES / EN)</span>
                         <span>✓ Temas claro, oscuro y personalizado</span>
                         <span>✓ Diagnóstico e integridad de datos</span>
                         <span>✓ Recálculo de totales para datos históricos</span>
@@ -329,14 +517,14 @@
                 </div>
             </div>
             <div style="margin-top:1rem; padding-top:0.75rem; border-top:1px solid var(--border); font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
-                <span>© 2024–2026 · Gestión de Pagos v2.0.0</span>
+                <span>© 2024–2026 · Gestión de Pagos v2.2.0</span>
                 <span>Licencia MIT · Uso personal y libre distribución</span>
             </div>
         </div>
 
     </div>
 
-    <script src="assets/js/app.js"></script>
+    <script src="assets/js/app.js?v=2.2.0"></script>
     <script>
         // Configuración
         const API_BASE = 'api/admin.php';
@@ -352,6 +540,7 @@
             initializeForms();
             loadTelegramConfig();
             initDayPicker();
+            initMcpSection();
 
             document.addEventListener('langChanged', () => {
                 renderServices();
@@ -416,6 +605,7 @@
                 if (result.success) {
                     services = result.data;
                     renderServices();
+                    loadWorkers();
                 }
             } catch (error) {
                 console.error('Error cargando servicios:', error);
@@ -1255,6 +1445,291 @@
         // ── END TELEGRAM ──────────────────────────────────────────
 
         // Utilidades
+        // ── Personas ──────────────────────────────────────────────
+        let workersData = [];
+
+        async function loadWorkers() {
+            try {
+                const res = await fetch(`${API_BASE}?action=getWorkers`).then(r => r.json());
+                workersData = res.data || [];
+                renderWorkers();
+            } catch (e) {
+                document.getElementById('workersList').innerHTML = `<div class="empty-state"><p>Error al cargar las personas</p></div>`;
+            }
+        }
+
+        function eur(v) { return (parseFloat(v) || 0).toFixed(2).replace('.', ',') + ' €'; }
+
+        function renderWorkers() {
+            const box = document.getElementById('workersList');
+            if (!workersData.length) {
+                box.innerHTML = `<div class="empty-state"><p>No hay personas. Pulsa "Nueva persona" para añadir a quien hace cada servicio.</p></div>`;
+                return;
+            }
+            const svcRate = name => (services.find(s => s.name === name) || {}).rate;
+            box.innerHTML = workersData.map(w => {
+                const bal = parseFloat(w.balance) || 0;
+                const balColor = bal < 0 ? 'var(--danger)' : bal > 0 ? 'var(--success)' : 'var(--text-secondary)';
+                const balLabel = bal < 0 ? 'pendiente' : bal > 0 ? 'a su favor' : 'al día';
+                const rate = w.rate !== null ? w.rate : svcRate(w.service);
+                const period = w.first_date ? `${fmtD(w.first_date)} → ${fmtD(w.last_date)}` : 'Sin movimientos';
+                return `
+                <div class="worker-row ${w.active == 1 ? '' : 'off'}">
+                    <div class="worker-main">
+                        <span class="worker-name"><iconify-icon icon="mdi:account" width="18" height="18"></iconify-icon> ${escapeHtml(w.name)}</span>
+                        <span class="mcp-badge">${escapeHtml(w.service)}</span>
+                        ${w.active == 1 ? '<span class="mcp-badge write">Activa</span>' : '<span class="mcp-badge revoked">De baja</span>'}
+                    </div>
+                    <div class="worker-stats">
+                        <span><strong>${rate !== null && rate !== undefined ? eur(rate) + '/h' : '—'}</strong> tarifa</span>
+                        <span><strong>${parseFloat(w.total_hours).toFixed(1)} h</strong> · ${w.records} mov.</span>
+                        <span>${period}</span>
+                        <span style="color:${balColor}"><strong>${eur(Math.abs(bal))}</strong> ${balLabel}</span>
+                    </div>
+                    ${w.notes ? `<div class="worker-notes"><iconify-icon icon="mdi:note-text" width="13" height="13"></iconify-icon> ${escapeHtml(w.notes)}</div>` : ''}
+                    <div class="worker-actions">
+                        <button class="btn-edit" onclick="editWorker(${w.id})" title="Editar"><iconify-icon icon="mdi:pencil" width="14" height="14"></iconify-icon></button>
+                        ${w.active == 1
+                            ? `<button class="btn btn-small worker-toggle" onclick="toggleWorker(${w.id}, false)"><iconify-icon icon="mdi:account-off" width="15" height="15"></iconify-icon> Dar de baja</button>`
+                            : `<button class="btn btn-small worker-toggle" onclick="toggleWorker(${w.id}, true)"><iconify-icon icon="mdi:account-check" width="15" height="15"></iconify-icon> Reactivar</button>`}
+                        ${w.records == 0 ? `<button class="btn-delete" onclick="deleteWorker(${w.id})" title="Eliminar (no tiene movimientos)"><iconify-icon icon="mdi:trash-can-outline" width="14" height="14"></iconify-icon></button>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function fmtD(iso) { const [y, m, d] = iso.split('-'); return `${d}/${m}/${y}`; }
+
+        function fillWorkerServices(selected) {
+            const sel = document.getElementById('workerService');
+            sel.innerHTML = services.map(s => `<option value="${escapeHtml(s.name)}">${escapeHtml(s.name)}</option>`).join('');
+            if (selected) sel.value = selected;
+        }
+
+        function suggestWorkerRate() {
+            if (document.getElementById('workerEditId').value) return;
+            const s = services.find(x => x.name === document.getElementById('workerService').value);
+            document.getElementById('workerRate').value = s && s.rate ? s.rate : '';
+        }
+
+        function showWorkerForm() {
+            if (!services.length) { showAlert('Crea primero un servicio', 'error'); return; }
+            document.getElementById('workerEditId').value = '';
+            document.getElementById('workerName').value = '';
+            document.getElementById('workerNotes').value = '';
+            fillWorkerServices();
+            document.getElementById('workerService').disabled = false;
+            suggestWorkerRate();
+            document.getElementById('workerSaveLabel').textContent = 'Añadir persona';
+            document.getElementById('workerForm').style.display = 'block';
+            document.getElementById('workerName').focus();
+        }
+
+        function hideWorkerForm() {
+            document.getElementById('workerForm').style.display = 'none';
+        }
+
+        function editWorker(id) {
+            const w = workersData.find(x => x.id == id);
+            if (!w) return;
+            document.getElementById('workerEditId').value = w.id;
+            document.getElementById('workerName').value = w.name;
+            fillWorkerServices(w.service);
+            document.getElementById('workerService').disabled = true; // el servicio no cambia: sus movimientos son de ese servicio
+            document.getElementById('workerRate').value = w.rate ?? '';
+            document.getElementById('workerNotes').value = w.notes || '';
+            document.getElementById('workerSaveLabel').textContent = 'Guardar cambios';
+            document.getElementById('workerForm').style.display = 'block';
+            document.getElementById('workerForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        async function workerRequest(action, body) {
+            const res = await fetch(`${API_BASE}?action=${action}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+            }).then(r => r.json());
+            showAlert(res.success ? res.message : (res.error || 'Error'), res.success ? 'success' : 'error');
+            return res.success;
+        }
+
+        async function saveWorker() {
+            const id = document.getElementById('workerEditId').value;
+            const body = {
+                name: document.getElementById('workerName').value.trim(),
+                rate: document.getElementById('workerRate').value,
+                notes: document.getElementById('workerNotes').value.trim(),
+            };
+            if (!body.name) { showAlert('Indica el nombre', 'error'); return; }
+            const ok = id
+                ? await workerRequest('updateWorker', { id: parseInt(id), ...body })
+                : await workerRequest('addWorker', { ...body, service: document.getElementById('workerService').value });
+            if (ok) { hideWorkerForm(); loadWorkers(); }
+        }
+
+        async function toggleWorker(id, active) {
+            const w = workersData.find(x => x.id == id);
+            if (!active && !confirm(`¿Dar de baja a ${w.name}? Sus datos se conservan y podrás seguir viendo su saldo (y registrarle pagos para saldarlo), pero no aparecerá para registrar horas nuevas.`)) return;
+            if (await workerRequest('updateWorker', { id, active })) loadWorkers();
+        }
+
+        async function deleteWorker(id) {
+            const w = workersData.find(x => x.id == id);
+            if (!confirm(`¿Eliminar a ${w.name}? No tiene movimientos.`)) return;
+            if (await workerRequest('deleteWorker', { id })) loadWorkers();
+        }
+
+        // ── Agentes IA (MCP) ──────────────────────────────────────
+        function mcpUrls() {
+            const base = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+            return {
+                endpoint: base + 'api/mcp',
+                docsPage: base + 'mcp.html',
+                docsMd:   base + 'api/mcp-docs?format=markdown',
+            };
+        }
+
+        function mcpConfig(key = 'gp_…') {
+            return JSON.stringify({ mcpServers: { 'gestion-pagos': {
+                type: 'http', url: mcpUrls().endpoint, headers: { 'X-API-Key': key }
+            } } }, null, 2);
+        }
+
+        // Texto completo para pegar al agente: conexión + key + instrucciones + docs
+        function agentMessage(key, instructions) {
+            const u = mcpUrls();
+            return [
+                'Conecta este servidor MCP: "Gestión de Pagos" (horas y pagos de la limpieza y otros servicios del hogar).',
+                '',
+                `- URL: ${u.endpoint}`,
+                '- Transporte: Streamable HTTP',
+                `- Cabecera de autenticación: X-API-Key: ${key}`,
+                '',
+                'Configuración:',
+                mcpConfig(key),
+                '',
+                'Instrucciones de uso:',
+                instructions,
+                '',
+                `Documentación completa de las herramientas: ${u.docsMd}`,
+            ].join('\n');
+        }
+
+        function initMcpSection() {
+            const u = mcpUrls();
+            document.getElementById('mcpEndpoint').textContent = u.endpoint;
+            document.getElementById('mcpDocsPage').textContent = u.docsPage;
+            document.getElementById('mcpDocsPageLink').href = u.docsPage;
+            document.getElementById('mcpDocsMd').textContent = u.docsMd;
+            document.getElementById('mcpDocsMdLink').href = u.docsMd;
+            document.getElementById('mcpConfigExample').textContent = mcpConfig();
+            loadApiKeys();
+        }
+
+        async function copyText(text, btn) {
+            try {
+                await navigator.clipboard.writeText(text);
+            } catch (e) {
+                // http sin contexto seguro: alternativa con textarea
+                const ta = document.createElement('textarea');
+                ta.value = text; document.body.appendChild(ta); ta.select();
+                document.execCommand('copy'); ta.remove();
+            }
+            if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '<iconify-icon icon="mdi:check" width="14" height="14"></iconify-icon>';
+                setTimeout(() => btn.innerHTML = old, 1200);
+            }
+        }
+
+        function fmtDateTime(iso) {
+            if (!iso) return '—';
+            const d = new Date(iso);
+            return d.toLocaleDateString('es-ES') + ' ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        async function loadApiKeys() {
+            const box = document.getElementById('apiKeysList');
+            try {
+                const res = await fetch(`${API_BASE}?action=listApiKeys`).then(r => r.json());
+                const keys = res.data || [];
+                if (!keys.length) {
+                    box.innerHTML = `<div class="empty-state"><p>No hay API keys. Pulsa "Nueva API key" para conectar un agente.</p></div>`;
+                    return;
+                }
+                box.innerHTML = keys.slice().reverse().map(k => `
+                    <div class="mcp-key-row ${k.active ? '' : 'revoked'}">
+                        <iconify-icon icon="mdi:key-variant" width="18" height="18" class="mcp-key-icon"></iconify-icon>
+                        <span class="mcp-key-name">${escapeHtml(k.name)}</span>
+                        <span class="mcp-badge ${k.scope}">${k.scope === 'write' ? 'Lectura y escritura' : 'Solo lectura'}</span>
+                        <code class="mcp-key-hint">${escapeHtml(k.hint)}</code>
+                        <span class="mcp-key-meta">Creada ${fmtDateTime(k.created_at)} · Último uso ${fmtDateTime(k.last_used_at)}</span>
+                        <span class="mcp-key-actions">
+                            ${k.active
+                                ? `<button class="btn btn-small btn-delete" onclick="revokeApiKey('${k.id}', '${escapeHtml(k.name)}')"><iconify-icon icon="mdi:key-remove" width="15" height="15"></iconify-icon> Revocar</button>`
+                                : `<span class="mcp-badge revoked">Revocada</span>
+                                   <button class="btn-delete" onclick="deleteApiKey('${k.id}')" title="Eliminar de la lista"><iconify-icon icon="mdi:trash-can-outline" width="14" height="14"></iconify-icon></button>`}
+                        </span>
+                    </div>`).join('');
+            } catch (e) {
+                box.innerHTML = `<div class="empty-state"><p>Error al cargar las API keys</p></div>`;
+            }
+        }
+
+        function showNewApiKey() {
+            document.getElementById('newApiKeyForm').style.display = 'block';
+            document.getElementById('newApiKeyResult').style.display = 'none';
+            document.getElementById('apiKeyName').value = '';
+            document.getElementById('apiKeyName').focus();
+        }
+
+        function hideNewApiKey() {
+            document.getElementById('newApiKeyForm').style.display = 'none';
+        }
+
+        async function createApiKey() {
+            const name = document.getElementById('apiKeyName').value.trim();
+            const scope = document.getElementById('apiKeyScope').value;
+            if (!name) { showAlert('Indica un nombre para el agente', 'error'); return; }
+            try {
+                const res = await fetch(`${API_BASE}?action=createApiKey`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, scope })
+                }).then(r => r.json());
+                if (!res.success) throw new Error(res.error || 'Error');
+                hideNewApiKey();
+                document.getElementById('newApiKeyValue').textContent = res.key;
+                document.getElementById('newApiKeyConfig').textContent = mcpConfig(res.key);
+                const u = mcpUrls();
+                let instructions = '';
+                try { instructions = (await fetch('api/mcp-docs').then(r => r.json())).instructions || ''; } catch (e) {}
+                document.getElementById('newApiKeyInstructions').textContent = instructions;
+                const docsLink = document.getElementById('newApiKeyDocsLink');
+                docsLink.href = u.docsMd; docsLink.textContent = u.docsMd;
+                document.getElementById('newApiKeyMessage').textContent = agentMessage(res.key, instructions);
+                document.getElementById('newApiKeyResult').style.display = 'block';
+                showAlert(res.message, 'success');
+                loadApiKeys();
+            } catch (e) {
+                showAlert('Error al crear la API key: ' + e.message, 'error');
+            }
+        }
+
+        async function revokeApiKey(id, name) {
+            if (!confirm(`¿Revocar la API key de "${name}"? El agente dejará de poder conectarse al instante.`)) return;
+            const res = await fetch(`${API_BASE}?action=revokeApiKey`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id })
+            }).then(r => r.json());
+            showAlert(res.success ? res.message : (res.error || 'Error'), res.success ? 'success' : 'error');
+            loadApiKeys();
+        }
+
+        async function deleteApiKey(id) {
+            const res = await fetch(`${API_BASE}?action=deleteApiKey`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id })
+            }).then(r => r.json());
+            if (!res.success) showAlert(res.error || 'Error', 'error');
+            loadApiKeys();
+        }
+
         function formatFileSize(bytes) {
             if (bytes < 1024) return bytes + ' B';
             if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';

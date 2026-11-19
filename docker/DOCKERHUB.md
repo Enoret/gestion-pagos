@@ -14,6 +14,8 @@ A lightweight web application for managing household service payments. Track wor
 - Multi-language (Spanish/English) with automatic browser detection
 - MDI icons via Iconify
 - Customizable color scheme from the admin panel
+- MCP server (`/api/mcp`) so AI agents can log hours and payments and check the balance, with revocable API keys
+- Telegram notifications via built-in cron
 - SQLite database (no external dependencies)
 - Responsive design (mobile, tablet, desktop)
 

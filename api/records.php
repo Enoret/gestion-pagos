@@ -81,6 +81,7 @@ function handleGet($db, $path) {
  * Manejar peticiones POST
  */
 function handlePost($db, $path, $input) {
+    unset($input['created_by']); // solo el servidor MCP lo establece
     switch ($path) {
         case 'work':
             $record = $db->createWorkRecord($input);

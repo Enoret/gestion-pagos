@@ -3,7 +3,7 @@
 Aplicación web ligera para gestionar pagos de servicios del hogar. Registra horas trabajadas, pagos y saldo pendiente para servicios como limpieza, jardinería y más.
 
 [![Docker Hub](https://img.shields.io/docker/pulls/mbraut/gestion-pagos?label=Docker%20Hub&logo=docker)](https://hub.docker.com/r/mbraut/gestion-pagos)
-[![Version](https://img.shields.io/badge/version-2.1.0-blue)](https://hub.docker.com/r/mbraut/gestion-pagos/tags)
+[![Version](https://img.shields.io/badge/version-2.2.0-blue)](https://hub.docker.com/r/mbraut/gestion-pagos/tags)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ---
@@ -15,6 +15,8 @@ Aplicación web ligera para gestionar pagos de servicios del hogar. Registra hor
 - 💶 **Registro de pagos** — importe y notas
 - 📈 **Gráfico de evolución** del saldo (Chart.js)
 - 📋 **Historial completo** con filtros por servicio y tipo
+- 👤 **Personas por servicio** — cada una con su tarifa y su propio saldo; al cambiar de persona, la anterior se da de baja (sus datos se conservan) y la nueva empieza desde 0. Saldo por persona, por servicio y global
+- 🤖 **Servidor MCP para agentes IA** — registra horas y pagos y consulta el saldo en lenguaje natural, con API keys revocables ([MCP.md](MCP.md))
 - 🔔 **Notificaciones Telegram** automáticas vía cron integrado en Docker
 - 🛠 **Panel de administración** — servicios, backups, tema, mantenimiento
 - 💾 **Backups automáticos** con restauración desde el panel
@@ -45,7 +47,7 @@ Abre `http://localhost:8080` en tu navegador.
 ```yaml
 services:
   gestion-pagos:
-    image: mbraut/gestion-pagos:2.1.0   # o :latest para actualizaciones automáticas
+    image: mbraut/gestion-pagos:2.2.0   # o :latest para actualizaciones automáticas
     container_name: gestion-pagos
     ports:
       - "8080:80"
@@ -101,6 +103,29 @@ docker compose up -d
 
 ---
 
+## Agentes IA (MCP)
+
+La app incluye un servidor MCP en `/api/mcp` para que un agente IA (p. ej. Hermes) registre horas y pagos y consulte el saldo.
+
+1. Admin → **Agentes IA (MCP)** → **Nueva API key** (lectura y escritura, o solo lectura). Cópiala: solo se muestra una vez.
+2. Configura el agente:
+
+```json
+{
+  "mcpServers": {
+    "gestion-pagos": {
+      "type": "http",
+      "url": "http://<servidor>:8080/api/mcp",
+      "headers": { "X-API-Key": "gp_…" }
+    }
+  }
+}
+```
+
+Documentación completa en [MCP.md](MCP.md), en `/mcp.html` y, para el agente, en `/api/mcp-docs?format=markdown`.
+
+---
+
 ## Construir la imagen
 
 ```bash
@@ -143,6 +168,8 @@ Abre `http://tu-servidor/` en el navegador.
 gestion-pagos/
 ├── index.html              # Página principal (dashboard, formularios, historial)
 ├── admin.html              # Panel de administración
+├── mcp.html                # Documentación del servidor MCP
+├── MCP.md                  # Guía del servidor MCP
 ├── .htaccess               # Config Apache (seguridad, caché, rutas)
 ├── .dockerignore           # Excluye data/ y archivos locales del build
 ├── api/
@@ -151,7 +178,11 @@ gestion-pagos/
 │   ├── records.php         # API de registros (trabajos y pagos)
 │   ├── admin.php           # API admin (servicios, tema, backups, Telegram)
 │   ├── import.php          # Importación de datos
-│   └── telegram_notify.php # Script cron para notificaciones Telegram
+│   ├── telegram_notify.php # Script cron para notificaciones Telegram
+│   ├── mcp.php             # Servidor MCP (Streamable HTTP) para agentes IA
+│   ├── mcp_tools.php       # Herramientas MCP (fuente única para servidor y documentación)
+│   ├── mcp_docs.php        # Documentación MCP generada (JSON / Markdown)
+│   └── apikeys.php         # API keys de los agentes (hash, permisos, revocación)
 ├── assets/
 │   ├── css/
 │   │   └── common.css      # Estilos compartidos (variables, dark mode, componentes)
@@ -169,6 +200,7 @@ gestion-pagos/
     ├── services.json       # Configuración de servicios
     ├── theme.json          # Colores del tema personalizado
     ├── telegram.json       # Config y notificaciones Telegram
+    ├── api_keys.json       # API keys de agentes (solo hashes)
     ├── telegram_sent.json  # Control de envíos duplicados
     └── backups/            # Backups de la base de datos
 ```
@@ -235,6 +267,19 @@ gestion-pagos/
 ---
 
 ## Changelog
+
+### v2.2.0 — Noviembre 2026
+- ✨ Personas por servicio (p. ej. la chica de la limpieza): tarifa propia, saldo individual, alta y baja desde el admin; los movimientos existentes se asignan automáticamente
+- ✨ Saldo por persona en el panel principal (pulsa una tarjeta para filtrar historial, gráfico y resumen) y filtros por persona en todas las secciones
+- ✨ Formularios con selector de persona, su tarifa y lo que se le debe; edición de movimientos con cambio de persona; CSV y exportación JSON con persona
+- ✨ Servidor MCP (`/api/mcp`) para agentes IA: registrar horas y pagos, consultar saldo, movimientos y resumen mensual, corregir y eliminar
+- ✨ API keys por agente desde el admin: lectura o lectura y escritura, hash SHA-256, revocables, último uso
+- ✨ Documentación MCP generada a partir de las herramientas: página `/mcp.html`, JSON y Markdown para el agente
+- ✨ Los movimientos registrados por un agente quedan marcados (🤖 en el historial)
+- 🛡 Protección anti-duplicados al registrar desde el agente
+- 🐛 Fix: favicon roto en la app y el admin
+- 🐛 Fix: al renombrar un servicio, sus movimientos se quedaban con el nombre antiguo; ya no se puede borrar un servicio con movimientos
+- 📱 Panel de administración adaptado a móvil
 
 ### v2.1.0 — Noviembre 2026
 - ✨ Historial compacto: una línea por movimiento con todos los datos, filtros rápidos (1 / 3 / 6 meses, 1 año), calendario para rangos personalizados y "Ver todos" (por defecto: último mes)

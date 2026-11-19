@@ -8,9 +8,20 @@
     # Set base to root
     RewriteBase /
 
+    # Pasar la cabecera Authorization (Bearer) a PHP
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
     # Security: data/ (BD, telegram.json con el token del bot, logs, backups)
     # nunca se sirve directamente. El tema se obtiene vía api/admin.php?action=getTheme
     RewriteRule ^data(/|$) - [F,L]
+
+    # Librerías internas: no se sirven directamente
+    RewriteRule ^api/(apikeys|mcp_tools|database|config)\.php$ - [F,L]
+
+    # Servidor MCP para agentes IA y su documentación
+    RewriteRule ^api/mcp/?$ api/mcp.php [L,QSA]
+    RewriteRule ^api/mcp-docs/?$ api/mcp_docs.php [L,QSA]
 
     # Allow direct access to existing files and directories
     RewriteCond %{REQUEST_FILENAME} -f [OR]

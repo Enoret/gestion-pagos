@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Pagos - Servicios</title>
-    <link rel="icon" href="share/favicon/favicon.ico">
+    <link rel="icon" href="logo_gestion-pagos.ico">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/common.css">
+    <link rel="stylesheet" href="assets/css/common.css?v=2.2.0">
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
-    <script src="assets/js/app.js"></script>
+    <script src="assets/js/app.js?v=2.2.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 </head>
@@ -63,6 +63,8 @@
             </div>
         </div>
 
+        <div id="workerBalances" class="worker-balances"></div>
+
         <div id="nextPaymentAlert" class="alert alert-info"></div>
 
         <div class="main-grid">
@@ -74,6 +76,11 @@
                     <div class="form-group">
                         <label for="workService" data-i18n="forms.service">Servicio</label>
                         <select id="workService" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="workWorker">Persona</label>
+                        <select id="workWorker" required></select>
+                        <div class="form-hint" id="workRateHint"></div>
                     </div>
                     <div class="form-group">
                         <label for="workDate" data-i18n="forms.date">Fecha</label>
@@ -99,6 +106,11 @@
                     <div class="form-group">
                         <label for="paymentService" data-i18n="forms.service">Servicio</label>
                         <select id="paymentService" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentWorker">Persona</label>
+                        <select id="paymentWorker" required></select>
+                        <div class="form-hint" id="paymentBalanceHint"></div>
                     </div>
                     <div class="form-group">
                         <label for="paymentDate" data-i18n="forms.payment_date">Fecha del pago</label>
@@ -202,6 +214,8 @@
         // Estado de la aplicación
         let records = [];
         let services = [];
+        let workers = [];            // personas (p. ej. la chica de la limpieza)
+        // Filtros: 'all' | 'svc:<servicio>' | 'w:<id persona>' | 'work' | 'payment' (solo historial)
         let currentFilter = 'all';
         let currentChartService = 'all';
         let currentChartPeriod = 'month';
@@ -236,6 +250,7 @@
                 if (result.success) {
                     services = result.data;
                     populateServiceSelectors();
+                    await loadWorkers();
                 }
             } catch (error) {
                 console.error('Error cargando servicios:', error);
@@ -246,6 +261,111 @@
                 ];
                 populateServiceSelectors();
             }
+        }
+
+        // Cargar personas
+        async function loadWorkers() {
+            try {
+                const res = await fetch('api/admin.php?action=getWorkers').then(r => r.json());
+                workers = res.success ? res.data : [];
+            } catch (e) {
+                workers = [];
+            }
+            populateWorkerSelects();
+            renderChartServiceButtons();
+            renderHistoryFilterButtons();
+            renderSummaryServiceButtons();
+            renderWorkerBalances();
+        }
+
+        function workerById(id) {
+            return workers.find(w => String(w.id) === String(id));
+        }
+
+        // Tarifa de una persona (o la del servicio si no tiene)
+        function workerRate(w) {
+            if (w && w.rate !== null && w.rate !== '' && w.rate !== undefined) return parseFloat(w.rate);
+            const svc = services.find(s => s.name === w?.service);
+            return parseFloat(svc?.rate) || 0;
+        }
+
+        // Rellenar el selector de persona según el servicio elegido
+        function populateWorkerSelect(serviceSelectId, workerSelectId, includeInactive) {
+            const service = document.getElementById(serviceSelectId)?.value;
+            const sel = document.getElementById(workerSelectId);
+            if (!sel) return;
+            const prev = sel.value;
+            const list = workers.filter(w => w.service === service && (w.active == 1 || includeInactive));
+            if (!list.length) {
+                sel.innerHTML = `<option value="">Sin personas — añádela en Admin → Personas</option>`;
+            } else {
+                sel.innerHTML = list.map(w =>
+                    `<option value="${w.id}">${escapeHtml(w.name)}${w.active == 1 ? '' : ' (de baja)'}</option>`
+                ).join('');
+                if (list.some(w => String(w.id) === prev)) sel.value = prev;
+            }
+            updateFormHints();
+        }
+
+        function populateWorkerSelects() {
+            populateWorkerSelect('workService', 'workWorker', false);
+            populateWorkerSelect('paymentService', 'paymentWorker', true);
+        }
+
+        function workerBalance(workerId) {
+            return calculateBalance(null, workerId).balance;
+        }
+
+        function updateFormHints() {
+            const ww = workerById(document.getElementById('workWorker')?.value);
+            const rh = document.getElementById('workRateHint');
+            if (rh) rh.textContent = ww ? `Tarifa de ${ww.name}: ${formatCurrency(workerRate(ww))}/h` : '';
+            const pw = workerById(document.getElementById('paymentWorker')?.value);
+            const bh = document.getElementById('paymentBalanceHint');
+            if (bh) {
+                if (!pw) { bh.textContent = ''; return; }
+                const b = workerBalance(pw.id);
+                bh.textContent = b < 0 ? `Le debes ${formatCurrency(Math.abs(b))}` : b > 0 ? `Tiene ${formatCurrency(b)} a su favor` : 'Al día';
+                bh.style.color = b < 0 ? 'var(--danger)' : b > 0 ? 'var(--success)' : '';
+            }
+        }
+
+        // ── Filtros compartidos (historial, gráfico, resumen) ──
+        function filterOptions(includeTypes) {
+            const opts = [{ key: 'all', label: App.t('history.all') }];
+            services.forEach(s => opts.push({ key: 'svc:' + s.name, label: s.name }));
+            workers.forEach(w => opts.push({ key: 'w:' + w.id, label: w.name, worker: true, inactive: w.active != 1, service: w.service }));
+            if (includeTypes) {
+                opts.push({ key: 'work', label: App.t('history.works') });
+                opts.push({ key: 'payment', label: App.t('history.payments') });
+            }
+            return opts;
+        }
+
+        function filterButtons(activeKey, attr, includeTypes) {
+            return filterOptions(includeTypes).map(o => `<button class="service-btn${o.worker ? ' worker-btn' : ''}${o.inactive ? ' inactive' : ''}${activeKey === o.key ? ' active' : ''}"
+                ${attr}="${escapeHtml(o.key)}" ${o.worker ? `title="${escapeHtml(o.service)}${o.inactive ? ' · de baja' : ''}"` : ''}>${o.worker ? '<iconify-icon icon="mdi:account" width="14" height="14"></iconify-icon>' : ''}${escapeHtml(o.label)}</button>`).join('');
+        }
+
+        function matchKey(r, key) {
+            if (!key || key === 'all') return true;
+            if (key === 'work' || key === 'payment') return r.type === key;
+            if (key.startsWith('svc:')) return r.service === key.slice(4);
+            if (key.startsWith('w:')) return String(r.worker_id) === key.slice(2);
+            return r.service === key; // compatibilidad
+        }
+
+        // Tarjeta de persona: si ya está filtrado por ella en todo, quita el filtro; si no, lo aplica
+        function toggleFilterEverywhere(key) {
+            const active = [currentFilter, currentChartService, currentSummaryService].every(k => k === key);
+            applyFilterEverywhere(active ? 'all' : key);
+        }
+
+        // Aplicar el mismo filtro (p. ej. una persona) a historial, gráfico y resumen
+        function applyFilterEverywhere(key) {
+            currentFilter = key; currentChartService = key; currentSummaryService = key;
+            renderChartServiceButtons(); renderHistoryFilterButtons(); renderSummaryServiceButtons();
+            renderHistory(); renderChart(); renderMonthlySummary(); renderWorkerBalances();
         }
 
         // Poblar selectores de servicios
@@ -259,6 +379,7 @@
 
             workSelect.innerHTML = options;
             paymentSelect.innerHTML = options;
+            populateWorkerSelects();
 
             renderChartServiceButtons();
             renderHistoryFilterButtons();
@@ -275,14 +396,13 @@
             const svc = document.getElementById('chartServiceSelector');
             if (!svc) return;
 
-            svc.innerHTML = `<button class="service-btn ${currentChartService === 'all' ? 'active' : ''}" data-service="all">${App.t('chart.all')}</button>` +
-                services.map(s => `<button class="service-btn ${currentChartService === s.name ? 'active' : ''}" data-service="${s.name}">${s.name}</button>`).join('');
+            svc.innerHTML = filterButtons(currentChartService, 'data-service', false);
 
             svc.querySelectorAll('[data-service]').forEach(btn => {
                 btn.addEventListener('click', () => {
                     svc.querySelectorAll('[data-service]').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    currentChartService = btn.dataset.service;
+                    currentChartService = btn.dataset.service; renderWorkerBalances();
                     renderChart();
                 });
             });
@@ -305,16 +425,13 @@
             const container = document.querySelector('[data-filter="all"]')?.parentElement;
             if (!container) return;
 
-            container.innerHTML = `<button class="service-btn active" data-filter="all">${App.t('history.all')}</button>` +
-                services.map(s => `<button class="service-btn" data-filter="${s.name}">${s.name}</button>`).join('') +
-                `<button class="service-btn" data-filter="work">${App.t('history.works')}</button>` +
-                `<button class="service-btn" data-filter="payment">${App.t('history.payments')}</button>`;
+            container.innerHTML = filterButtons(currentFilter, 'data-filter', true);
 
             container.querySelectorAll('[data-filter]').forEach(btn => {
                 btn.addEventListener('click', () => {
                     container.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    currentFilter = btn.dataset.filter;
+                    currentFilter = btn.dataset.filter; renderWorkerBalances();
                     renderHistory();
                 });
             });
@@ -328,6 +445,7 @@
 
                 if (result.success) {
                     records = result.data;
+                    updateFormHints();
                     updateDashboard();
                     renderHistory();
                     renderMonthlySummary();
@@ -374,15 +492,22 @@
 
         // Inicializar formularios
         function initializeForms() {
+            document.getElementById('workService').addEventListener('change', () => populateWorkerSelect('workService', 'workWorker', false));
+            document.getElementById('paymentService').addEventListener('change', () => populateWorkerSelect('paymentService', 'paymentWorker', true));
+            document.getElementById('workWorker').addEventListener('change', updateFormHints);
+            document.getElementById('paymentWorker').addEventListener('change', updateFormHints);
+
             document.getElementById('workForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
 
-                const selectedService = services.find(s => s.name === document.getElementById('workService').value);
+                const worker = workerById(document.getElementById('workWorker').value);
+                if (!worker) { showAlert('Elige la persona (o añádela en Admin → Personas)', 'error'); return; }
                 const data = {
-                    service: document.getElementById('workService').value,
+                    service: worker.service,
+                    worker_id: worker.id,
                     date: document.getElementById('workDate').value,
                     hours: parseFloat(document.getElementById('workHours').value),
-                    rate: selectedService?.rate || 0,
+                    rate: workerRate(worker),
                     notes: document.getElementById('workNotes').value
                 };
 
@@ -397,7 +522,11 @@
 
                     if (result.success) {
                         showAlert(App.t('alerts.work_registered'), 'success');
+                        const keepW = document.getElementById('workWorker').value, keepS = document.getElementById('workService').value;
                         e.target.reset();
+                        document.getElementById('workService').value = keepS;
+                        populateWorkerSelect('workService', 'workWorker', false);
+                        document.getElementById('workWorker').value = keepW;
                         setDefaultDates();
                         loadData();
                     } else {
@@ -411,8 +540,11 @@
             document.getElementById('paymentForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
 
+                const pworker = workerById(document.getElementById('paymentWorker').value);
+                if (!pworker) { showAlert('Elige la persona (o añádela en Admin → Personas)', 'error'); return; }
                 const data = {
-                    service: document.getElementById('paymentService').value,
+                    service: pworker.service,
+                    worker_id: pworker.id,
                     date: document.getElementById('paymentDate').value,
                     amount: parseFloat(document.getElementById('paymentAmount').value),
                     notes: document.getElementById('paymentNotes').value
@@ -429,7 +561,11 @@
 
                     if (result.success) {
                         showAlert(App.t('alerts.payment_registered'), 'success');
+                        const keepPW = document.getElementById('paymentWorker').value, keepPS = document.getElementById('paymentService').value;
                         e.target.reset();
+                        document.getElementById('paymentService').value = keepPS;
+                        populateWorkerSelect('paymentService', 'paymentWorker', true);
+                        document.getElementById('paymentWorker').value = keepPW;
                         setDefaultDates();
                         loadData();
                     } else {
@@ -444,15 +580,15 @@
         // Filters are initialized dynamically in renderChartServiceButtons() and renderHistoryFilterButtons()
 
         // Calcular saldo
-        function calculateBalance(serviceFilter = null) {
+        function calculateBalance(serviceFilter = null, workerId = null) {
             let balance = 0;
             let totalWorked = 0;
             let totalPaid = 0;
             let totalHours = 0;
 
-            const filteredRecords = serviceFilter
-                ? records.filter(r => r.service === serviceFilter)
-                : records;
+            const filteredRecords = records.filter(r =>
+                (!serviceFilter || r.service === serviceFilter) &&
+                (!workerId || String(r.worker_id) === String(workerId)));
 
             filteredRecords.forEach(record => {
                 if (record.type === 'work') {
@@ -477,8 +613,40 @@
             };
         }
 
+        // Saldo por persona (y por servicio si hay más de uno)
+        function renderWorkerBalances() {
+            const box = document.getElementById('workerBalances');
+            if (!box) return;
+            const list = workers.filter(w => w.active == 1 || records.some(r => String(r.worker_id) === String(w.id)));
+            if (!list.length) { box.innerHTML = ''; return; }
+            const label = b => b < 0 ? 'pendiente' : b > 0 ? 'a su favor' : 'al día';
+            const color = b => b < 0 ? 'var(--danger)' : b > 0 ? 'var(--success)' : 'var(--text-secondary)';
+            const card = (key, title, sub, st, extraClass = '') => {
+                const active = [currentFilter, currentChartService, currentSummaryService].every(k => k === key);
+                return `<button class="wb-card${extraClass}${active ? ' active' : ''}" data-key="${escapeHtml(key)}" onclick="toggleFilterEverywhere(this.dataset.key)" title="Ver solo sus datos (pulsa otra vez para quitar el filtro)">
+                    <span class="wb-head">${title}</span>
+                    <span class="wb-sub">${sub}</span>
+                    <span class="wb-balance" style="color:${color(st.balance)}">${formatCurrency(Math.abs(st.balance))} <small>${label(st.balance)}</small></span>
+                    <span class="wb-meta">${st.totalHours.toFixed(1)} h · trabajado ${formatCurrency(st.totalWorked)} · pagado ${formatCurrency(st.totalPaid)}</span>
+                </button>`;
+            };
+            let html = list.map(w => {
+                const st = calculateBalance(null, w.id);
+                const sub = `${escapeHtml(w.service)} · ${formatCurrency(workerRate(w))}/h${w.active == 1 ? '' : ' · <span class="wb-off">de baja</span>'}`;
+                return card('w:' + w.id, `<iconify-icon icon="mdi:account" width="16" height="16"></iconify-icon> ${escapeHtml(w.name)}`, sub, st, w.active == 1 ? '' : ' off');
+            }).join('');
+            const svcWithData = services.filter(s => records.some(r => r.service === s.name));
+            if (svcWithData.length > 1) {
+                html += svcWithData.map(s => card('svc:' + s.name,
+                    `<span class="icon">${getServiceIcon(s)}</span> ${escapeHtml(s.name)}`, 'Total del servicio',
+                    calculateBalance(s.name), ' svc')).join('');
+            }
+            box.innerHTML = `<div class="wb-title"><iconify-icon icon="mdi:account-cash" width="18" height="18"></iconify-icon> Saldo por persona <span>Pulsa una tarjeta para ver solo sus datos</span></div><div class="wb-grid">${html}</div>`;
+        }
+
         // Actualizar dashboard
         function updateDashboard() {
+            renderWorkerBalances();
             const { balance, totalWorked, totalPaid, totalHours } = calculateBalance();
 
             // Saldo actual
@@ -538,9 +706,7 @@
             // 1) El saldo se calcula SIEMPRE sobre el historial completo (solo filtrado por servicio),
             //    para que no se "reinicie" a 0 al filtrar por fechas o por tipo.
             const isTypeFilter = currentFilter === 'work' || currentFilter === 'payment';
-            const base = (currentFilter === 'all' || isTypeFilter)
-                ? records
-                : records.filter(r => r.service === currentFilter);
+            const base = isTypeFilter ? records : records.filter(r => matchKey(r, currentFilter));
 
             const sorted = [...base].sort((a, b) => {
                 const d = new Date(a.date) - new Date(b.date);
@@ -608,6 +774,10 @@
                            <span class="hr-kind">Pago:</span> <strong class="hr-pay">+${formatCurrency(total)}</strong>
                        </span>`;
 
+                const agent = record.created_by
+                    ? `<span class="hr-agent" title="Registrado por ${escapeHtml(record.created_by.replace(/^agente:\s*/, ''))} (agente IA)"><iconify-icon icon="mdi:robot-outline" width="16" height="16"></iconify-icon></span>`
+                    : '';
+
                 const notes = record.notes
                     ? `<span class="hr-notes" title="${escapeHtml(record.notes)}"><iconify-icon icon="mdi:note-text" width="13" height="13"></iconify-icon>${escapeHtml(record.notes)}</span>`
                     : '';
@@ -616,7 +786,7 @@
                     <div class="history-row ${isWork ? 'work' : 'payment'}" id="hi-${record.id}">
                         <span class="hr-date">${formatDate(record.date)}</span>
                         <span class="history-type ${isWork ? 'work' : 'payment'}">${escapeHtml(record.service)}</span>
-                        <span class="hr-main">${detail}${notes}</span>
+                        <span class="hr-main">${record.worker_name ? `<span class="hr-worker"><iconify-icon icon="mdi:account" width="14" height="14"></iconify-icon>${escapeHtml(record.worker_name)}</span>` : ''}${detail}${agent}${notes}</span>
                         ${renderBalanceRow(record)}
                         <span class="hr-actions">
                             <button class="btn-edit" onclick="openEditModal(${record.id})" title="Editar">
@@ -661,9 +831,13 @@
             const el = document.getElementById(`hi-${id}`);
             if (!el) return;
 
-            const serviceOptions = services.map(s =>
-                `<option value="${s.name}" ${s.name === record.service ? 'selected' : ''}>${s.name}</option>`
-            ).join('');
+            const serviceOptions = services.map(s => {
+                const ws = workers.filter(w => w.service === s.name && (w.active == 1 || String(w.id) === String(record.worker_id)));
+                if (!ws.length) return '';
+                return `<optgroup label="${escapeHtml(s.name)}">` + ws.map(w =>
+                    `<option value="${w.id}" ${String(w.id) === String(record.worker_id) ? 'selected' : ''}>${escapeHtml(w.name)}${w.active == 1 ? '' : ' (de baja)'}</option>`
+                ).join('') + `</optgroup>`;
+            }).join('');
 
             const isWork = record.type === 'work';
             const extraFields = isWork ? `
@@ -685,11 +859,11 @@
 
             el.classList.add('editing');
             el.innerHTML = `
-                <div class="inline-edit-title">Editando registro — ${formatDate(record.date)} · ${record.service}</div>
+                <div class="inline-edit-title">Editando registro — ${formatDate(record.date)} · ${escapeHtml(record.service)}${record.worker_name ? ' · ' + escapeHtml(record.worker_name) : ''}</div>
                 <div class="inline-edit-fields">
                     <div class="form-group">
-                        <label>Servicio</label>
-                        <select id="editService">${serviceOptions}</select>
+                        <label>Persona</label>
+                        <select id="editWorker">${serviceOptions}</select>
                     </div>
                     <div class="form-group">
                         <label>Fecha</label>
@@ -720,8 +894,10 @@
             const record = records.find(r => r.id === editingRecordId);
             if (!record) return;
 
+            const ew = workerById(document.getElementById('editWorker').value);
             const data = {
-                service: document.getElementById('editService').value,
+                worker_id: ew ? ew.id : record.worker_id,
+                service: ew ? ew.service : record.service,
                 date: document.getElementById('editDate').value,
                 notes: document.getElementById('editNotes').value
             };
@@ -775,10 +951,7 @@
             const canvas = document.getElementById('balanceChart');
             const ctx = canvas.getContext('2d');
 
-            const all = (currentChartService === 'all'
-                ? [...records]
-                : records.filter(r => r.service === currentChartService)
-            ).sort((a, b) => {
+            const all = records.filter(r => matchKey(r, currentChartService)).sort((a, b) => {
                 const d = new Date(a.date) - new Date(b.date);
                 return d !== 0 ? d : new Date(a.created_at) - new Date(b.created_at);
             });
@@ -1032,6 +1205,7 @@
         // "Ver todos": quita fechas y el filtro de servicio/tipo
         function clearAllHistoryFilters() {
             currentFilter = 'all';
+            setTimeout(renderWorkerBalances);
             document.querySelectorAll('[data-filter]').forEach(b => b.classList.toggle('active', b.dataset.filter === 'all'));
             clearDateFilter();
         }
@@ -1046,14 +1220,12 @@
         function renderSummaryServiceButtons() {
             const container = document.getElementById('summaryServiceSelector');
             if (!container) return;
-            container.innerHTML =
-                `<button class="service-btn ${currentSummaryService === 'all' ? 'active' : ''}" data-summary-service="all">Todos</button>` +
-                services.map(s => `<button class="service-btn ${currentSummaryService === s.name ? 'active' : ''}" data-summary-service="${escapeHtml(s.name)}">${escapeHtml(s.name)}</button>`).join('');
+            container.innerHTML = filterButtons(currentSummaryService, 'data-summary-service', false);
             container.querySelectorAll('[data-summary-service]').forEach(btn => {
                 btn.addEventListener('click', () => {
                     container.querySelectorAll('[data-summary-service]').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    currentSummaryService = btn.dataset.summaryService;
+                    currentSummaryService = btn.dataset.summaryService; renderWorkerBalances();
                     renderMonthlySummary();
                 });
             });
@@ -1066,7 +1238,7 @@
         }
 
         function clearAllSummaryFilters() {
-            currentSummaryService = 'all';
+            currentSummaryService = 'all'; setTimeout(renderWorkerBalances);
             document.querySelectorAll('[data-summary-service]').forEach(b => b.classList.toggle('active', b.dataset.summaryService === 'all'));
             document.getElementById('summaryDateFrom').value = '';
             document.getElementById('summaryDateTo').value = '';
@@ -1077,8 +1249,7 @@
             const container = document.getElementById('monthlySummaryContainer');
             if (!container) return;
 
-            let filtered = currentSummaryService === 'all' ? records
-                : records.filter(r => r.service === currentSummaryService);
+            let filtered = records.filter(r => matchKey(r, currentSummaryService));
 
             const allMonths = new Set(filtered.map(r => r.date.substring(0, 7))).size;
             const dateFrom = document.getElementById('summaryDateFrom')?.value;
@@ -1181,6 +1352,15 @@
                 text += `✅ Todo al día`;
             }
 
+            const withData = workers.filter(w => records.some(r => String(r.worker_id) === String(w.id)));
+            if (withData.length > 1) {
+                text += `\n\n👤 Por persona:`;
+                withData.forEach(w => {
+                    const b = calculateBalance(null, w.id).balance;
+                    text += `\n• ${w.name} (${w.service}): ` + (b < 0 ? `pendiente ${Math.abs(b).toFixed(2).replace('.', ',')} €` : b > 0 ? `a su favor ${b.toFixed(2).replace('.', ',')} €` : 'al día');
+                });
+            }
+
             copyToClipboard(text);
         }
 
@@ -1240,7 +1420,7 @@
             }
 
             // Crear CSV con headers traducidos
-            let csv = `${App.t('csv.type')},${App.t('csv.service')},${App.t('csv.date')},${App.t('csv.hours')},${App.t('csv.rate')},${App.t('csv.total_worked')},${App.t('csv.amount_paid')},${App.t('csv.notes')}\n`;
+            let csv = `${App.t('csv.type')},${App.t('csv.service')},Persona,${App.t('csv.date')},${App.t('csv.hours')},${App.t('csv.rate')},${App.t('csv.total_worked')},${App.t('csv.amount_paid')},${App.t('csv.notes')}\n`;
 
             records.forEach(record => {
                 const tipo = record.type === 'work' ? App.t('csv.work') : App.t('csv.payment');
@@ -1252,7 +1432,8 @@
                 const cantidad = record.amount || '';
                 const notas = (record.notes || '').replace(/,/g, ';');
 
-                csv += `${tipo},${servicio},${fecha},${horas},${tarifa},${total},${cantidad},"${notas}"\n`;
+                const persona = (record.worker_name || '').replace(/,/g, ';');
+                csv += `${tipo},${servicio},${persona},${fecha},${horas},${tarifa},${total},${cantidad},"${notas}"\n`;
             });
 
             // Crear blob y descargar

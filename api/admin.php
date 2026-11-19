@@ -1,5 +1,7 @@
 <?php
 require_once 'config.php';
+require_once 'apikeys.php';
+require_once 'database.php';
 
 // Manejar peticiones OPTIONS para CORS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -125,6 +127,15 @@ function handleGet($action) {
             getTelegramConfig();
             break;
 
+        case 'getWorkers':
+            $db = new Database();
+            jsonResponse(['success' => true, 'data' => $db->getWorkers()]);
+            break;
+
+        case 'listApiKeys':
+            jsonResponse(['success' => true, 'data' => apikeys_list()]);
+            break;
+
         case 'getTheme':
             $themeFile = __DIR__ . '/../data/theme.json';
             $theme = file_exists($themeFile) ? json_decode(file_get_contents($themeFile), true) : null;
@@ -221,6 +232,56 @@ function handlePost($action, $input) {
             addTelegramNotification($input);
             break;
 
+        case 'addWorker':
+            $db = new Database();
+            if (empty($input['service']) || !in_array($input['service'], array_column(loadServices(), 'name'), true)) {
+                errorResponse('Servicio no válido');
+            }
+            $w = $db->createWorker($input);
+            jsonResponse(['success' => true, 'data' => $w, 'message' => "Persona \"{$w['name']}\" añadida"]);
+            break;
+
+        case 'updateWorker':
+            if (empty($input['id'])) errorResponse('ID de la persona requerido');
+            $db = new Database();
+            $data = array_intersect_key($input, array_flip(['name', 'rate', 'active', 'notes']));
+            $w = $db->updateWorker((int) $input['id'], $data);
+            jsonResponse(['success' => true, 'data' => $w, 'message' => 'Persona actualizada']);
+            break;
+
+        case 'deleteWorker':
+            if (empty($input['id'])) errorResponse('ID de la persona requerido');
+            $db = new Database();
+            $db->deleteWorker((int) $input['id']);
+            jsonResponse(['success' => true, 'message' => 'Persona eliminada']);
+            break;
+
+        case 'createApiKey':
+            try {
+                $created = apikeys_create((string) ($input['name'] ?? ''), (string) ($input['scope'] ?? 'write'));
+                jsonResponse(['success' => true, 'key' => $created['key'], 'data' => $created['info'],
+                    'message' => 'API key creada. Cópiala ahora: no se volverá a mostrar.']);
+            } catch (InvalidArgumentException $e) {
+                errorResponse($e->getMessage());
+            } catch (Throwable $e) {
+                errorResponse('No se pudo crear la API key', 500);
+            }
+            break;
+
+        case 'revokeApiKey':
+            if (empty($input['id'])) errorResponse('ID de la key requerido');
+            apikeys_revoke((string) $input['id'])
+                ? jsonResponse(['success' => true, 'message' => 'API key revocada'])
+                : errorResponse('API key no encontrada o ya revocada', 404);
+            break;
+
+        case 'deleteApiKey':
+            if (empty($input['id'])) errorResponse('ID de la key requerido');
+            apikeys_delete((string) $input['id'])
+                ? jsonResponse(['success' => true, 'message' => 'API key eliminada'])
+                : errorResponse('Solo se pueden eliminar keys revocadas', 400);
+            break;
+
         case 'updateTelegramNotification':
             updateTelegramNotification($input);
             break;
@@ -293,6 +354,10 @@ function updateService($input) {
     $icon    = isset($input['icon']) && !empty($input['icon']) ? trim($input['icon']) : null;
     $found   = false;
 
+    if ($newName !== $name && in_array($newName, array_column($services, 'name'), true)) {
+        errorResponse("Ya existe un servicio llamado \"$newName\"");
+    }
+
     foreach ($services as &$service) {
         if ($service['name'] === $name) {
             $service['name'] = $newName;
@@ -308,6 +373,8 @@ function updateService($input) {
     }
     
     if (saveServices($services)) {
+        // Mantener movimientos y personas asociados al servicio renombrado
+        if ($newName !== $name) (new Database())->renameService($name, $newName);
         jsonResponse(['success' => true, 'message' => 'Servicio actualizado']);
     } else {
         errorResponse('Error al actualizar el servicio', 500);
@@ -326,6 +393,11 @@ function deleteService($input) {
     $name = $input['name'];
     $newServices = [];
     $found = false;
+
+    $usage = (new Database())->serviceUsage($name);
+    if ($usage['records'] > 0 || $usage['workers'] > 0) {
+        errorResponse("No se puede eliminar \"$name\": tiene {$usage['records']} movimientos y {$usage['workers']} personas asociadas");
+    }
     
     foreach ($services as $service) {
         if ($service['name'] !== $name) {
@@ -429,8 +501,10 @@ function checkIntegrity() {
  */
 function exportJSON() {
     try {
+    new Database(); // asegura que el esquema (personas) está migrado
         $db = new PDO('sqlite:' . DB_PATH);
         $records = $db->query('SELECT * FROM records ORDER BY date ASC, created_at ASC')->fetchAll(PDO::FETCH_ASSOC);
+        $workers = $db->query('SELECT * FROM workers ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
         $services = file_exists(__DIR__ . '/../data/services.json')
             ? json_decode(file_get_contents(__DIR__ . '/../data/services.json'), true)
             : [];
@@ -439,10 +513,11 @@ function exportJSON() {
             : null;
 
         $export = [
-            'version'     => '1.0',
+            'version'     => '2.2',
             'app'         => 'Gestion de Pagos',
             'exported_at' => date('Y-m-d H:i:s'),
             'services'    => $services,
+            'workers'     => $workers,
             'records'     => $records,
             'theme'       => $theme
         ];
@@ -461,6 +536,7 @@ function exportJSON() {
  * Importar datos desde JSON
  */
 function importJSON($input) {
+    new Database(); // asegura que el esquema (personas) está migrado
     if (!isset($input['data'])) {
         errorResponse('No se recibieron datos', 400);
     }
@@ -486,9 +562,21 @@ function importJSON($input) {
 
         // Limpiar registros actuales e insertar los del JSON
         $db->exec('DELETE FROM records');
+        $db->exec('DELETE FROM workers');
+        if (!empty($data['workers']) && is_array($data['workers'])) {
+            $ws = $db->prepare('INSERT INTO workers (id, name, service, rate, active, notes, created_at, updated_at)
+                                VALUES (:id, :name, :service, :rate, :active, :notes, :created_at, :updated_at)');
+            foreach ($data['workers'] as $w) {
+                $ws->execute([
+                    ':id' => $w['id'], ':name' => $w['name'], ':service' => $w['service'], ':rate' => $w['rate'] ?? null,
+                    ':active' => isset($w['active']) ? (int) $w['active'] : 1, ':notes' => $w['notes'] ?? null,
+                    ':created_at' => $w['created_at'] ?? date('Y-m-d H:i:s'), ':updated_at' => $w['updated_at'] ?? date('Y-m-d H:i:s'),
+                ]);
+            }
+        }
         $stmt = $db->prepare('
-            INSERT INTO records (type, service, date, hours, rate, total, amount, notes, created_at, updated_at)
-            VALUES (:type, :service, :date, :hours, :rate, :total, :amount, :notes, :created_at, :updated_at)
+            INSERT INTO records (type, service, worker_id, date, hours, rate, total, amount, notes, created_by, created_at, updated_at)
+            VALUES (:type, :service, :worker_id, :date, :hours, :rate, :total, :amount, :notes, :created_by, :created_at, :updated_at)
         ');
 
         $imported = 0;
@@ -502,6 +590,8 @@ function importJSON($input) {
                 ':total'      => $r['total'] ?? null,
                 ':amount'     => $r['amount'] ?? null,
                 ':notes'      => $r['notes'] ?? null,
+                ':worker_id'  => $r['worker_id'] ?? null,
+                ':created_by' => $r['created_by'] ?? null,
                 ':created_at' => $r['created_at'] ?? date('Y-m-d H:i:s'),
                 ':updated_at' => $r['updated_at'] ?? date('Y-m-d H:i:s'),
             ]);
@@ -509,6 +599,9 @@ function importJSON($input) {
         }
 
         $db->commit();
+
+        // Exports antiguos (sin personas): asignar los movimientos a una persona por servicio
+        (new Database())->assignOrphanRecords();
 
         // Importar servicios
         file_put_contents(

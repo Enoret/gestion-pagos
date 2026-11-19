@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP · Gestión de Pagos</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/common.css?v=2.2.0">
+    <link rel="icon" href="logo_gestion-pagos.ico">
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="hero-header">
+            <img src="gestion_pagos.png" alt="Gestión de Pagos" class="hero-img">
+            <div class="hero-overlay"></div>
+            <div class="hero-actions">
+                <div class="hero-buttons">
+                    <a href="admin.html#mcpCard" class="btn btn-small hero-btn" style="text-decoration:none;">
+                        <iconify-icon icon="mdi:arrow-left" width="16" height="16"></iconify-icon>
+                        Volver al Admin
+                    </a>
+                    <a id="mdLink" href="api/mcp-docs?format=markdown" target="_blank" class="btn btn-small hero-btn" style="text-decoration:none;">
+                        <iconify-icon icon="mdi:language-markdown" width="16" height="16"></iconify-icon>
+                        Markdown
+                    </a>
+                </div>
+                <div id="themeToggle" class="theme-toggle-group"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title"><iconify-icon icon="mdi:robot-outline" width="24" height="24"></iconify-icon> Servidor MCP</h2>
+                <span class="mcp-badge" id="mcpVersion"></span>
+            </div>
+            <div class="mcp-urls">
+                <div class="mcp-url-row"><span class="mcp-url-label">Endpoint</span><code id="dEndpoint"></code></div>
+                <div class="mcp-url-row"><span class="mcp-url-label">Transporte</span><code id="dTransport"></code></div>
+                <div class="mcp-url-row"><span class="mcp-url-label">Autenticación</span><code id="dAuth"></code></div>
+            </div>
+            <p class="mcp-intro">
+                Las API keys se crean y revocan en <a href="admin.html#mcpCard">Admin → Agentes IA (MCP)</a>.
+                Con permiso <strong>solo lectura</strong> el agente solo ve las herramientas de consulta.
+            </p>
+            <div class="mcp-config-head"><span class="mcp-url-label">Configuración del cliente</span></div>
+            <pre class="mcp-config" id="dConfig"></pre>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title"><iconify-icon icon="mdi:message-text-outline" width="24" height="24"></iconify-icon> Instrucciones para el agente</h2>
+            </div>
+            <pre class="mcp-config mcp-instructions" id="dInstructions"></pre>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title"><iconify-icon icon="mdi:tools" width="24" height="24"></iconify-icon> Herramientas</h2>
+                <span class="history-count" id="dCount"></span>
+            </div>
+            <div id="dTools"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+    </div>
+
+    <script src="assets/js/app.js?v=2.2.0"></script>
+    <script>
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try { await App.init(); } catch (e) {}
+            const d = await fetch('api/mcp-docs').then(r => r.json());
+            document.getElementById('mcpVersion').textContent = 'v' + d.version;
+            document.getElementById('dEndpoint').textContent = d.endpoint;
+            document.getElementById('dTransport').textContent = d.transport;
+            document.getElementById('dAuth').textContent = d.auth;
+            document.getElementById('dConfig').textContent = JSON.stringify(d.config, null, 2);
+            document.getElementById('dInstructions').textContent = d.instructions;
+            document.getElementById('dCount').textContent = d.tools.length + ' herramientas';
+            document.getElementById('dTools').innerHTML = d.tools.map(t => `
+                <div class="mcp-tool ${t.permission === 'lectura' ? '' : 'write'}">
+                    <div class="mcp-tool-head">
+                        <code>${esc(t.name)}</code>
+                        <span class="mcp-badge ${t.permission === 'lectura' ? '' : 'write'}">${esc(t.permission)}</span>
+                    </div>
+                    <p>${esc(t.description)}</p>
+                    ${t.parameters.length ? `<table class="mcp-params">${t.parameters.map(p => `
+                        <tr>
+                            <td><code>${esc(p.name)}</code></td>
+                            <td>${esc(p.type)}</td>
+                            <td>${p.required ? '<span class="req">obligatorio</span>' : 'opcional' + (p.default !== null && p.default !== undefined ? ' (' + esc(JSON.stringify(p.default)) + ')' : '')}</td>
+                            <td>${esc(p.description)}</td>
+                        </tr>`).join('')}</table>` : '<p><em>Sin parámetros.</em></p>'}
+                </div>`).join('');
+        });
+    </script>
+</body>
+</html>

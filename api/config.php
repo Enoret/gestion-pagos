@@ -18,6 +18,8 @@ define('BACKUP_FREQUENCY', 'weekly'); // daily, weekly, monthly
 // Tipos de servicios disponibles
 define('SERVICES', ['Limpieza', 'Jardinero']);
 
+define('APP_RELEASE', '2.2.0');
+
 // Configuración de seguridad
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
@@ -45,6 +47,10 @@ function jsonResponse($data, $statusCode = 200) {
  * Función auxiliar para errores
  */
 function errorResponse($message, $statusCode = 400) {
+    // El servidor MCP necesita capturar los errores en vez de cortar la respuesta
+    if (defined('GP_THROW_ERRORS')) {
+        throw new RuntimeException($message, $statusCode);
+    }
     jsonResponse([
         'success' => false,
         'error' => $message
