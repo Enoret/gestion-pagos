@@ -222,26 +222,62 @@ class Database {
      */
     public function getStats($service = null) {
         try {
-            $sql = "SELECT 
-                SUM(CASE WHEN type = 'work' THEN total ELSE 0 END) as total_worked,
-                SUM(CASE WHEN type = 'work' THEN hours ELSE 0 END) as total_hours,
-                SUM(CASE WHEN type = 'payment' THEN amount ELSE 0 END) as total_paid,
-                (SUM(CASE WHEN type = 'payment' THEN amount ELSE 0 END) - 
-                 SUM(CASE WHEN type = 'work' THEN total ELSE 0 END)) as balance
+            // COALESCE garantiza que NULLs en total/amount/hours no contaminen las sumas
+            $sql = "SELECT
+                ROUND(SUM(CASE WHEN type = 'work' THEN COALESCE(total, 0) ELSE 0 END), 2) as total_worked,
+                ROUND(SUM(CASE WHEN type = 'work' THEN COALESCE(hours, 0) ELSE 0 END), 2) as total_hours,
+                ROUND(SUM(CASE WHEN type = 'payment' THEN COALESCE(amount, 0) ELSE 0 END), 2) as total_paid,
+                ROUND(SUM(CASE WHEN type = 'payment' THEN COALESCE(amount, 0) ELSE 0 END) -
+                 SUM(CASE WHEN type = 'work' THEN COALESCE(total, 0) ELSE 0 END), 2) as balance
                 FROM records WHERE 1=1";
-            
+
             $params = [];
             if ($service) {
                 $sql .= " AND service = :service";
                 $params[':service'] = $service;
             }
-            
+
             $stmt = $this->db->prepare($sql);
             $stmt->execute($params);
-            
+
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             errorResponse('Error al calcular estadísticas: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Recalcular totales de todos los registros de trabajo (hours * rate)
+     * Útil para reparar registros con total NULL o desincronizados
+     */
+    public function recalculateTotals() {
+        try {
+            // Actualizar registros de trabajo que tienen hours y rate pero total puede estar mal
+            $stmt = $this->db->prepare("
+                UPDATE records
+                SET total = ROUND(hours * rate, 2),
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE type = 'work'
+                  AND hours IS NOT NULL
+                  AND rate IS NOT NULL
+            ");
+            $stmt->execute();
+            $fixed = $stmt->rowCount();
+
+            // Detectar registros con datos insuficientes para recalcular
+            $broken = $this->db->query("
+                SELECT id, service, date FROM records
+                WHERE type = 'work' AND (hours IS NULL OR rate IS NULL OR total IS NULL)
+            ")->fetchAll(PDO::FETCH_ASSOC);
+
+            return [
+                'success' => true,
+                'fixed'   => $fixed,
+                'broken'  => $broken,
+                'message' => "$fixed registros recalculados correctamente"
+            ];
+        } catch (PDOException $e) {
+            errorResponse('Error al recalcular totales: ' . $e->getMessage(), 500);
         }
     }
     

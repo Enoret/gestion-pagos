@@ -85,14 +85,14 @@ Mount a volume to `/var/www/html/data` to persist data across container restarts
 
 ## Screenshots
 
-The application includes a clean, modern UI with:
+### Light Mode
+![Light Mode](https://raw.githubusercontent.com/Enoret/gestion-pagos/main/screenshots/light.png)
 
-- Dashboard with balance cards and payment alerts
-- Work and payment registration forms
-- Balance evolution chart
-- Movement history with service filters
-- Admin panel for full system management
+### Dark Mode
+![Dark Mode](https://raw.githubusercontent.com/Enoret/gestion-pagos/main/screenshots/dark.png)
 
-## Source
+## Source Code
+
+[GitHub Repository](https://github.com/Enoret/gestion-pagos)
 
 Built with PHP 8.2, vanilla JavaScript, Chart.js, and Iconify MDI icons.

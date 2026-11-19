@@ -1,0 +1,28 @@
+# Contexto de build = raíz de la app (docker build -f docker/Dockerfile .)
+# Datos personales — nunca deben entrar en la imagen
+data/
+share/
+screenshots/
+
+# Build / docs / instalación manual
+docker/*
+!docker/entrypoint.sh
+install.sh
+*.md
+
+# Control de versiones
+.git/
+.gitignore
+
+# Archivos del sistema macOS
+.DS_Store
+**/.DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs locales
+*.log

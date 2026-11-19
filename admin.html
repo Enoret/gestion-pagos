@@ -10,104 +10,50 @@
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 </head>
 <body>
-    <div class="container" style="max-width: 1200px;">
-        <header>
-            <h1><iconify-icon icon="mdi:cog" width="36" height="36"></iconify-icon> <span data-i18n="app.admin_title">Panel de Administracion</span></h1>
-            <p class="subtitle" data-i18n="app.admin_subtitle">Configuracion y gestion del sistema</p>
-            <div class="header-actions">
-                <a href="index.html" class="btn btn-small header-btn" style="text-decoration: none;">
-                    <iconify-icon icon="mdi:arrow-left" width="18" height="18"></iconify-icon> <span data-i18n="nav.back_to_app">Volver a la App</span>
-                </a>
+    <div class="container">
+        <div class="hero-header">
+            <img src="gestion_pagos.png" alt="Gestión de Pagos" class="hero-img">
+            <div class="hero-overlay"></div>
+            <div class="hero-actions">
+                <div class="hero-buttons">
+                    <a href="index.html" class="btn btn-small hero-btn" style="text-decoration:none;">
+                        <iconify-icon icon="mdi:arrow-left" width="16" height="16"></iconify-icon>
+                        <span data-i18n="nav.back_to_app">Volver a la App</span>
+                    </a>
+                </div>
                 <div id="themeToggle" class="theme-toggle-group"></div>
-            </div>
-        </header>
-
-        <!-- Estadísticas del Sistema -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title"><iconify-icon icon="mdi:chart-box" width="24" height="24"></iconify-icon> <span data-i18n="admin.stats_title">Estadisticas del Sistema</span></h2>
-            </div>
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-value" id="totalServices">0</div>
-                    <div class="stat-label" data-i18n="admin.active_services">Servicios Activos</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="totalRecords">0</div>
-                    <div class="stat-label" data-i18n="admin.total_records">Total Registros</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="dbSize">0 KB</div>
-                    <div class="stat-label" data-i18n="admin.db_size">Tamano DB</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="totalBackups">0</div>
-                    <div class="stat-label" data-i18n="admin.backups">Backups</div>
-                </div>
             </div>
         </div>
 
-        <!-- Personalización de Tema -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title"><iconify-icon icon="mdi:palette" width="24" height="24"></iconify-icon> <span data-i18n="admin.theme_title">Personalizacion de Tema</span></h2>
+        <!-- Estadísticas del Sistema -->
+        <div class="dashboard" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="stat-card">
+                <div class="stat-card-icon"><iconify-icon icon="mdi:tools" width="24" height="24"></iconify-icon></div>
+                <div class="stat-card-body">
+                    <div class="stat-label" data-i18n="admin.active_services">Servicios Activos</div>
+                </div>
+                <div class="stat-value neutral" id="totalServices">—</div>
             </div>
-
-            <div style="margin-bottom: 2rem;">
-                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;" data-i18n="admin.theme_description">
-                    Personaliza los colores de la aplicacion. Los cambios se aplicaran inmediatamente.
-                </p>
-
-                <div class="form-row" style="margin-bottom: 1rem;">
-                    <div class="form-group">
-                        <label for="colorPrimary"><iconify-icon icon="mdi:target" width="16" height="16"></iconify-icon> <span data-i18n="admin.color_primary">Color Principal</span></label>
-                        <input type="color" id="colorPrimary" value="#3C3C3C" style="height: 50px;">
-                        <small style="color: var(--text-secondary);" data-i18n="admin.color_primary_desc">Botones, titulos, enlaces</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="colorSecondary"><iconify-icon icon="mdi:star" width="16" height="16"></iconify-icon> <span data-i18n="admin.color_secondary">Color Secundario</span></label>
-                        <input type="color" id="colorSecondary" value="#E8750A" style="height: 50px;">
-                        <small style="color: var(--text-secondary);" data-i18n="admin.color_secondary_desc">Botones secundarios, alertas</small>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-card-icon"><iconify-icon icon="mdi:database" width="24" height="24"></iconify-icon></div>
+                <div class="stat-card-body">
+                    <div class="stat-label" data-i18n="admin.total_records">Total Registros</div>
                 </div>
-
-                <div class="form-row" style="margin-bottom: 1rem;">
-                    <div class="form-group">
-                        <label for="colorAccent"><iconify-icon icon="mdi:flash" width="16" height="16"></iconify-icon> <span data-i18n="admin.color_accent">Color de Acento</span></label>
-                        <input type="color" id="colorAccent" value="#D13A20" style="height: 50px;">
-                        <small style="color: var(--text-secondary);" data-i18n="admin.color_accent_desc">Elementos destacados</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="colorSuccess"><iconify-icon icon="mdi:check-circle" width="16" height="16"></iconify-icon> <span data-i18n="admin.color_success">Color de Exito</span></label>
-                        <input type="color" id="colorSuccess" value="#86B953" style="height: 50px;">
-                        <small style="color: var(--text-secondary);" data-i18n="admin.color_success_desc">Saldos positivos, confirmaciones</small>
-                    </div>
+                <div class="stat-value neutral" id="totalRecords">—</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon"><iconify-icon icon="mdi:harddisk" width="24" height="24"></iconify-icon></div>
+                <div class="stat-card-body">
+                    <div class="stat-label" data-i18n="admin.db_size">Tamaño DB</div>
                 </div>
-
-                <div class="form-row" style="margin-bottom: 1rem;">
-                    <div class="form-group">
-                        <label for="colorDanger"><iconify-icon icon="mdi:close-circle" width="16" height="16"></iconify-icon> <span data-i18n="admin.color_danger">Color de Peligro</span></label>
-                        <input type="color" id="colorDanger" value="#D13A20" style="height: 50px;">
-                        <small style="color: var(--text-secondary);" data-i18n="admin.color_danger_desc">Saldos negativos, errores</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="colorBackground"><iconify-icon icon="mdi:image" width="16" height="16"></iconify-icon> <span data-i18n="admin.color_background">Color de Fondo</span></label>
-                        <input type="color" id="colorBackground" value="#EBEBEB" style="height: 50px;">
-                        <small style="color: var(--text-secondary);" data-i18n="admin.color_background_desc">Fondo general de la app</small>
-                    </div>
+                <div class="stat-value neutral" id="dbSize">—</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon"><iconify-icon icon="mdi:content-save-all" width="24" height="24"></iconify-icon></div>
+                <div class="stat-card-body">
+                    <div class="stat-label" data-i18n="admin.backups">Backups</div>
                 </div>
-
-                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                    <button onclick="saveTheme()" class="btn btn-primary">
-                        <iconify-icon icon="mdi:content-save" width="18" height="18"></iconify-icon> <span data-i18n="admin.save_theme">Guardar Tema</span>
-                    </button>
-                    <button onclick="resetTheme()" class="btn btn-secondary">
-                        <iconify-icon icon="mdi:refresh" width="18" height="18"></iconify-icon> <span data-i18n="admin.reset_theme">Restablecer por Defecto</span>
-                    </button>
-                    <button onclick="previewTheme()" class="btn btn-secondary">
-                        <iconify-icon icon="mdi:eye" width="18" height="18"></iconify-icon> <span data-i18n="admin.preview_theme">Vista Previa</span>
-                    </button>
-                </div>
+                <div class="stat-value neutral" id="totalBackups">—</div>
             </div>
         </div>
 
@@ -128,8 +74,13 @@
                         <input type="number" id="serviceRate" step="0.5" min="0" placeholder="12.00">
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Icono</label>
+                    <input type="hidden" id="serviceIcon" value="">
+                    <div class="icon-picker" id="iconPicker"></div>
+                </div>
                 <button type="submit" class="btn btn-primary">
-                    <iconify-icon icon="mdi:plus" width="18" height="18"></iconify-icon> <span data-i18n="admin.add_service">Anadir Servicio</span>
+                    <iconify-icon icon="mdi:plus" width="18" height="18"></iconify-icon> <span data-i18n="admin.add_service">Añadir Servicio</span>
                 </button>
             </form>
 
@@ -140,13 +91,121 @@
             </div>
         </div>
 
+        <!-- Notificaciones Telegram -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <iconify-icon icon="mdi:send" width="24" height="24"></iconify-icon>
+                    Notificaciones Telegram
+                </h2>
+                <button onclick="showAddNotification()" class="btn btn-secondary btn-small" id="btnNewNotif">
+                    <iconify-icon icon="mdi:plus" width="16" height="16"></iconify-icon>
+                    Nueva Notificación
+                </button>
+            </div>
+
+            <!-- Config: Token + Chat ID -->
+            <div class="tg-config-section">
+                <div class="form-row" style="margin-bottom:0.75rem;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="tgToken">
+                            <iconify-icon icon="mdi:robot" width="14" height="14"></iconify-icon>
+                            Token del Bot
+                        </label>
+                        <input type="password" id="tgToken" placeholder="123456789:ABC-DEF1234..." autocomplete="off">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="tgChatId">
+                            <iconify-icon icon="mdi:chat" width="14" height="14"></iconify-icon>
+                            Chat ID
+                        </label>
+                        <input type="text" id="tgChatId" placeholder="-1001234567890 o tu user ID">
+                    </div>
+                </div>
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    <button onclick="saveTelegramConfig()" class="btn btn-primary btn-small">
+                        <iconify-icon icon="mdi:content-save" width="16" height="16"></iconify-icon>
+                        Guardar Configuración
+                    </button>
+                    <button onclick="testTelegram()" class="btn btn-small" style="background:var(--inner-bg); border:1.5px solid var(--border); color:var(--text-primary);">
+                        <iconify-icon icon="mdi:send-check" width="16" height="16"></iconify-icon>
+                        Enviar Prueba
+                    </button>
+                </div>
+
+                <!-- Cron status -->
+                <div class="tg-cron-info">
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                        <div style="display:flex; align-items:center; gap:0.4rem;">
+                            <iconify-icon icon="mdi:clock-time-four-outline" width="15" height="15" style="color:var(--text-secondary);"></iconify-icon>
+                            <span style="font-size:0.78rem; font-weight:600; color:var(--text-secondary);">Cron automático — integrado en Docker</span>
+                        </div>
+                        <button onclick="checkCronStatus()" class="btn btn-small" style="background:var(--inner-bg); border:1.5px solid var(--border); color:var(--text-primary);">
+                            <iconify-icon icon="mdi:refresh" width="15" height="15"></iconify-icon>
+                            Verificar estado
+                        </button>
+                    </div>
+                    <div id="cronResult" style="margin-top:0.5rem;">
+                        <div style="font-size:0.78rem; color:var(--text-secondary); padding:0.4rem 0;">
+                            El cron está integrado en la imagen Docker y se activa automáticamente al iniciar el contenedor. No requiere configuración manual.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add / Edit Notification Form (hidden by default) -->
+            <div id="addNotificationForm" class="notif-form-panel" style="display:none;">
+                <div class="form-row" style="margin-bottom:0.75rem;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Hora de envío</label>
+                        <input type="time" id="notifTime" value="09:00">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Mensaje personalizado</label>
+                        <input type="text" id="notifMessage" placeholder="Ej: Recuerda revisar los pagos pendientes 📋" maxlength="500">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:0.75rem;">
+                    <label>Días de envío <span style="font-weight:400; color:var(--text-secondary);">(toca para activar/desactivar)</span></label>
+                    <div class="day-picker" id="dayPicker"></div>
+                    <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.4rem;">
+                        <iconify-icon icon="mdi:information-outline" width="13" height="13"></iconify-icon>
+                        Los días <strong>rellenos</strong> son los días en que se enviará la notificación.
+                    </div>
+                </div>
+                <input type="hidden" id="editNotifId" value="">
+                <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+                    <button onclick="hideAddNotification()" class="btn btn-small">Cancelar</button>
+                    <button onclick="saveNotification()" class="btn btn-primary btn-small">
+                        <iconify-icon icon="mdi:check" width="16" height="16"></iconify-icon>
+                        Guardar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notification list -->
+            <div id="notificationsList">
+                <div class="empty-state">
+                    <p>Cargando notificaciones...</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Gestión de Backups -->
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title"><iconify-icon icon="mdi:content-save-all" width="24" height="24"></iconify-icon> <span data-i18n="admin.backups_title">Gestion de Backups</span></h2>
-                <button onclick="createBackup()" class="btn btn-secondary btn-small">
-                    <span data-i18n="admin.create_backup_now">Crear Backup Ahora</span>
-                </button>
+                <div style="display:flex; gap:0.5rem;">
+                    <button onclick="createBackup()" class="btn btn-secondary btn-small">
+                        <iconify-icon icon="mdi:content-save" width="16" height="16"></iconify-icon>
+                        <span data-i18n="admin.create_backup_now">Crear Backup Ahora</span>
+                    </button>
+                    <button onclick="document.getElementById('uploadBackupInput').click()" class="btn btn-small" style="background:var(--inner-bg); border:1.5px solid var(--border); color:var(--text-primary);">
+                        <iconify-icon icon="mdi:upload" width="16" height="16"></iconify-icon>
+                        Subir Backup
+                    </button>
+                    <input type="file" id="uploadBackupInput" accept=".db" style="display:none;" onchange="uploadBackup(this)">
+                </div>
             </div>
             <div id="backupsList">
                 <div class="empty-state">
@@ -160,21 +219,121 @@
             <div class="card-header">
                 <h2 class="card-title"><iconify-icon icon="mdi:wrench" width="24" height="24"></iconify-icon> <span data-i18n="admin.maintenance_title">Mantenimiento</span></h2>
             </div>
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                <button onclick="optimizeDB()" class="btn btn-secondary">
-                    <iconify-icon icon="mdi:rocket-launch" width="18" height="18"></iconify-icon> <span data-i18n="admin.optimize_db">Optimizar Base de Datos</span>
-                </button>
-                <button onclick="clearOldBackups()" class="btn btn-secondary">
-                    <iconify-icon icon="mdi:delete-sweep" width="18" height="18"></iconify-icon> <span data-i18n="admin.clean_old_backups">Limpiar Backups Antiguos</span>
-                </button>
-                <button onclick="exportAllData()" class="btn btn-primary">
-                    <iconify-icon icon="mdi:export" width="18" height="18"></iconify-icon> <span data-i18n="admin.export_all">Exportar Todos los Datos</span>
-                </button>
-                <button onclick="deleteAllEntries()" class="btn btn-danger">
-                    <iconify-icon icon="mdi:delete-forever" width="18" height="18"></iconify-icon> <span data-i18n="admin.delete_all_entries">Borrar Todas las Entradas</span>
-                </button>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-start;">
+                <div style="display:flex; flex-direction:column; gap:0.3rem;">
+                    <button onclick="checkIntegrity()" class="btn btn-small" style="background:var(--inner-bg); border:1.5px solid var(--border); color:var(--text-primary);">
+                        <iconify-icon icon="mdi:shield-check" width="16" height="16"></iconify-icon> Verificar Integridad
+                    </button>
+                    <small style="color:var(--text-secondary); font-size:0.72rem; padding: 0 0.25rem;">Comprueba si la BD está corrupta</small>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.3rem;">
+                    <button onclick="diagnoseData()" class="btn btn-small" style="background:var(--inner-bg); border:1.5px solid var(--border); color:var(--text-primary);">
+                        <iconify-icon icon="mdi:stethoscope" width="16" height="16"></iconify-icon> Diagnóstico de Datos
+                    </button>
+                    <small style="color:var(--text-secondary); font-size:0.72rem; padding: 0 0.25rem;">Detecta inconsistencias y duplicados</small>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.3rem;">
+                    <button onclick="optimizeDB()" class="btn btn-small" style="background:var(--inner-bg); border:1.5px solid var(--border); color:var(--text-primary);">
+                        <iconify-icon icon="mdi:rocket-launch" width="16" height="16"></iconify-icon> Optimizar Base de Datos
+                    </button>
+                    <small style="color:var(--text-secondary); font-size:0.72rem; padding: 0 0.25rem;">Compacta el archivo y recupera espacio</small>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.3rem;">
+                    <button onclick="exportJSON()" class="btn btn-small btn-primary">
+                        <iconify-icon icon="mdi:code-json" width="16" height="16"></iconify-icon> Exportar JSON
+                    </button>
+                    <small style="color:var(--text-secondary); font-size:0.72rem; padding: 0 0.25rem;">Exporta registros, servicios y tema</small>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.3rem;">
+                    <button onclick="document.getElementById('importJSONInput').click()" class="btn btn-small btn-primary">
+                        <iconify-icon icon="mdi:import" width="16" height="16"></iconify-icon> Importar JSON
+                    </button>
+                    <input type="file" id="importJSONInput" accept=".json" style="display:none;" onchange="importJSON(this)">
+                    <small style="color:var(--text-secondary); font-size:0.72rem; padding: 0 0.25rem;">Restaura desde un export JSON</small>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.3rem;">
+                    <button onclick="exportAllData()" class="btn btn-small btn-secondary">
+                        <iconify-icon icon="mdi:file-delimited" width="16" height="16"></iconify-icon> Exportar CSV
+                    </button>
+                    <small style="color:var(--text-secondary); font-size:0.72rem; padding: 0 0.25rem;">Descarga todos los registros en CSV</small>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.3rem;">
+                    <button onclick="recalculateTotals()" class="btn btn-small" style="background:var(--inner-bg); border:1.5px solid var(--border); color:var(--text-primary);">
+                        <iconify-icon icon="mdi:calculator-variant" width="16" height="16"></iconify-icon> Recalcular Totales
+                    </button>
+                    <small style="color:var(--text-secondary); font-size:0.72rem; padding: 0 0.25rem;">Resincroniza total = horas × tarifa</small>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.3rem;">
+                    <button onclick="deleteAllEntries()" class="btn btn-small btn-danger">
+                        <iconify-icon icon="mdi:delete-forever" width="16" height="16"></iconify-icon> Borrar Todas las Entradas
+                    </button>
+                    <small style="color:var(--text-secondary); font-size:0.72rem; padding: 0 0.25rem;">Elimina todos los trabajos y pagos</small>
+                </div>
+            </div>
+            <div id="maintenanceResult" style="display:none; margin-top:1.25rem;"></div>
+        </div>
+
+        <!-- Acerca de -->
+        <div class="card" style="margin-top:1.5rem;">
+            <div class="card-header">
+                <h2 class="card-title"><iconify-icon icon="mdi:information-outline" width="24" height="24"></iconify-icon> Acerca de</h2>
+            </div>
+            <div style="display:flex; gap:2rem; flex-wrap:wrap; align-items:flex-start;">
+                <div style="display:flex; flex-direction:column; gap:0.5rem; min-width:220px;">
+                    <div style="display:flex; align-items:center; gap:0.6rem;">
+                        <iconify-icon icon="mdi:home-currency-usd" width="32" height="32" style="color:var(--primary);"></iconify-icon>
+                        <div>
+                            <div style="font-weight:700; font-size:1.05rem; color:var(--text-primary);">Gestión de Pagos</div>
+                            <div style="font-size:0.8rem; color:var(--text-secondary);">Versión 2.0.0</div>
+                        </div>
+                    </div>
+                    <p style="font-size:0.82rem; color:var(--text-secondary); margin:0; line-height:1.5;">
+                        Aplicación para el seguimiento de servicios del hogar, horas trabajadas y pagos pendientes.
+                        Incluye notificaciones automáticas por Telegram, backups y panel de administración.
+                    </p>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.4rem; font-size:0.82rem; color:var(--text-secondary);">
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <iconify-icon icon="mdi:tag-outline" width="15" height="15"></iconify-icon>
+                        <span><strong>Versión:</strong> 2.0.0</span>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <iconify-icon icon="mdi:layers-outline" width="15" height="15"></iconify-icon>
+                        <span><strong>Stack:</strong> PHP 8.2 · SQLite3 · Docker · Vanilla JS</span>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <iconify-icon icon="mdi:scale-balance" width="15" height="15"></iconify-icon>
+                        <span><strong>Licencia:</strong> MIT — uso libre y personal</span>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <iconify-icon icon="mdi:github" width="15" height="15"></iconify-icon>
+                        <span><strong>Imagen:</strong> mbraut/gestion-pagos</span>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <iconify-icon icon="mdi:robot-outline" width="15" height="15"></iconify-icon>
+                        <span><strong>Desarrollado con:</strong> Claude (Anthropic)</span>
+                    </div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.4rem; font-size:0.82rem;">
+                    <div style="font-weight:600; color:var(--text-primary); margin-bottom:0.2rem;">Novedades v2.0</div>
+                    <div style="color:var(--text-secondary); display:flex; flex-direction:column; gap:0.25rem; line-height:1.5;">
+                        <span>✓ Notificaciones automáticas por Telegram con cron Docker</span>
+                        <span>✓ Iconos personalizados por servicio</span>
+                        <span>✓ Backups automáticos y restauración</span>
+                        <span>✓ Exportación JSON y CSV</span>
+                        <span>✓ Soporte multi-idioma (ES / EN / CA)</span>
+                        <span>✓ Temas claro, oscuro y personalizado</span>
+                        <span>✓ Diagnóstico e integridad de datos</span>
+                        <span>✓ Recálculo de totales para datos históricos</span>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:1rem; padding-top:0.75rem; border-top:1px solid var(--border); font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                <span>© 2024–2026 · Gestión de Pagos v2.0.0</span>
+                <span>Licencia MIT · Uso personal y libre distribución</span>
             </div>
         </div>
+
     </div>
 
     <script src="assets/js/app.js"></script>
@@ -186,104 +345,66 @@
         // Inicialización
         document.addEventListener('DOMContentLoaded', async () => {
             await App.init();
+            initIconPicker('iconPicker', 'serviceIcon');
             loadServices();
             loadStats();
-            loadThemeColors();
+            loadBackups();
             initializeForms();
+            loadTelegramConfig();
+            initDayPicker();
 
             document.addEventListener('langChanged', () => {
                 renderServices();
             });
         });
 
-        // Cargar colores del tema guardado
-        function loadThemeColors() {
-            try {
-                const theme = JSON.parse(localStorage.getItem('appTheme'));
-                if (theme) {
-                    document.getElementById('colorPrimary').value = theme.primary || '#3C3C3C';
-                    document.getElementById('colorSecondary').value = theme.secondary || '#E8750A';
-                    document.getElementById('colorAccent').value = theme.accent || '#D13A20';
-                    document.getElementById('colorSuccess').value = theme.success || '#86B953';
-                    document.getElementById('colorDanger').value = theme.danger || '#D13A20';
-                    document.getElementById('colorBackground').value = theme.background || '#EBEBEB';
-                }
-            } catch (error) {
-                console.log('No saved theme');
-            }
-        }
+        // ── Icon Picker ───────────────────────────────────────────
+        const ICON_LIST = [
+            { icon: 'mdi:broom',            label: 'Limpieza' },
+            { icon: 'mdi:flower',           label: 'Jardín' },
+            { icon: 'mdi:paint-roller',     label: 'Pintor' },
+            { icon: 'mdi:wall',             label: 'Albañil' },
+            { icon: 'mdi:flash',            label: 'Electricista' },
+            { icon: 'mdi:wrench',           label: 'Fontanero' },
+            { icon: 'mdi:lightbulb',        label: 'Luz' },
+            { icon: 'mdi:fire',             label: 'Gas' },
+            { icon: 'mdi:water',            label: 'Agua' },
+            { icon: 'mdi:wifi',             label: 'Internet' },
+            { icon: 'mdi:hammer-wrench',    label: 'Reparaciones' },
+            { icon: 'mdi:car',              label: 'Coche' },
+            { icon: 'mdi:dog',             label: 'Mascotas' },
+            { icon: 'mdi:washing-machine',  label: 'Lavandería' },
+            { icon: 'mdi:air-conditioner',  label: 'Clima' },
+            { icon: 'mdi:television',       label: 'TV' },
+            { icon: 'mdi:phone',            label: 'Teléfono' },
+            { icon: 'mdi:medical-bag',      label: 'Salud' },
+            { icon: 'mdi:scissors',         label: 'Peluquería' },
+            { icon: 'mdi:home',             label: 'Hogar' },
+            { icon: 'mdi:account',          label: 'Persona' },
+            { icon: 'mdi:cash',             label: 'Dinero' },
+            { icon: 'mdi:truck',            label: 'Transporte' },
+            { icon: 'mdi:food',             label: 'Comida' },
+        ];
 
-        // Guardar tema
-        async function saveTheme() {
-            const theme = {
-                primary: document.getElementById('colorPrimary').value,
-                secondary: document.getElementById('colorSecondary').value,
-                accent: document.getElementById('colorAccent').value,
-                success: document.getElementById('colorSuccess').value,
-                danger: document.getElementById('colorDanger').value,
-                background: document.getElementById('colorBackground').value
-            };
+        function initIconPicker(containerId, hiddenId, selectedIcon = '') {
+            const container = document.getElementById(containerId);
+            const hidden = document.getElementById(hiddenId);
+            if (!container) return;
 
-            try {
-                const response = await fetch(API_BASE, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'saveTheme',
-                        theme: theme
-                    })
+            container.innerHTML = ICON_LIST.map(({ icon, label }) => `
+                <button type="button" class="icon-picker-btn ${icon === selectedIcon ? 'selected' : ''}"
+                    data-icon="${icon}" title="${label}">
+                    <iconify-icon icon="${icon}" width="20" height="20"></iconify-icon>
+                </button>
+            `).join('') + (hidden ? '' : '');
+
+            container.querySelectorAll('.icon-picker-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    container.querySelectorAll('.icon-picker-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    if (hidden) hidden.value = btn.dataset.icon;
                 });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    localStorage.setItem('appTheme', JSON.stringify(theme));
-                    showAlert(App.t('admin.theme_saved'), 'success');
-                } else {
-                    showAlert('Error: ' + result.error, 'error');
-                }
-            } catch (error) {
-                // Guardar solo localmente si falla el servidor
-                localStorage.setItem('appTheme', JSON.stringify(theme));
-                showAlert(App.t('admin.theme_saved_local'), 'success');
-            }
-        }
-
-        // Restablecer tema por defecto
-        function resetTheme() {
-            if (!confirm(App.t('admin.theme_reset_confirm'))) return;
-
-            document.getElementById('colorPrimary').value = '#3C3C3C';
-            document.getElementById('colorSecondary').value = '#E8750A';
-            document.getElementById('colorAccent').value = '#D13A20';
-            document.getElementById('colorSuccess').value = '#86B953';
-            document.getElementById('colorDanger').value = '#D13A20';
-            document.getElementById('colorBackground').value = '#EBEBEB';
-
-            localStorage.removeItem('appTheme');
-
-            fetch(API_BASE, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'deleteTheme' })
-            }).catch(() => {});
-
-            showAlert(App.t('admin.theme_reset'), 'success');
-        }
-
-        // Vista previa del tema
-        function previewTheme() {
-            const theme = {
-                primary: document.getElementById('colorPrimary').value,
-                secondary: document.getElementById('colorSecondary').value,
-                accent: document.getElementById('colorAccent').value,
-                success: document.getElementById('colorSuccess').value,
-                danger: document.getElementById('colorDanger').value,
-                background: document.getElementById('colorBackground').value
-            };
-
-            App.colorTheme.apply(theme);
-            showAlert(App.t('admin.preview_applied'), 'success');
+            });
         }
 
         // Cargar servicios
@@ -315,10 +436,10 @@
             }
 
             container.innerHTML = services.map(service => `
-                <div class="service-item animate-in">
+                <div class="service-item animate-in" id="svc-${service.name}">
                     <div class="service-info">
                         <div class="service-name">
-                            <span class="icon">${getServiceIcon(service.name)}</span>
+                            <span class="icon">${getServiceIcon(service)}</span>
                             ${service.name}
                         </div>
                         <div class="service-rate">
@@ -351,6 +472,7 @@
 
                 const name = document.getElementById('serviceName').value.trim();
                 const rate = parseFloat(document.getElementById('serviceRate').value) || null;
+                const icon = document.getElementById('serviceIcon').value || null;
 
                 try {
                     const response = await fetch(API_BASE, {
@@ -359,7 +481,8 @@
                         body: JSON.stringify({
                             action: 'addService',
                             name: name,
-                            rate: rate
+                            rate: rate,
+                            icon: icon
                         })
                     });
 
@@ -379,27 +502,53 @@
             });
         }
 
-        // Editar servicio
-        async function editService(serviceName) {
+        // Editar servicio (inline)
+        function editService(serviceName) {
             const service = services.find(s => s.name === serviceName);
             if (!service) return;
 
-            const newRate = prompt(App.t('admin.new_rate_prompt', { name: serviceName }), service.rate || '');
-            if (newRate === null) return;
+            const item = document.getElementById(`svc-${CSS.escape(serviceName)}`);
+            if (!item) return;
+
+            item.innerHTML = `
+                <div style="width:100%;">
+                    <div class="form-row" style="margin-bottom:0.75rem;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Nombre</label>
+                            <input type="text" id="editSvcName" value="${service.name}">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Tarifa (€/h)</label>
+                            <input type="number" id="editSvcRate" step="0.5" min="0" value="${service.rate || ''}">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0.75rem;">
+                        <label>Icono</label>
+                        <div class="icon-picker" id="editIconPicker-${CSS.escape(serviceName)}">
+                            <input type="hidden" id="editSvcIcon" value="${service.icon || ''}">
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+                        <button onclick="loadServices()" class="btn btn-small">Cancelar</button>
+                        <button onclick="saveEditService('${serviceName}')" class="btn btn-primary btn-small">Guardar</button>
+                    </div>
+                </div>`;
+
+            initIconPicker(`editIconPicker-${CSS.escape(serviceName)}`, 'editSvcIcon', service.icon || '');
+        }
+
+        async function saveEditService(oldName) {
+            const name = document.getElementById('editSvcName').value.trim();
+            const rate = parseFloat(document.getElementById('editSvcRate').value) || null;
+            const icon = document.getElementById('editSvcIcon').value || null;
 
             try {
                 const response = await fetch(API_BASE, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'updateService',
-                        name: serviceName,
-                        rate: parseFloat(newRate) || null
-                    })
+                    body: JSON.stringify({ action: 'updateService', name: oldName, newName: name, rate, icon })
                 });
-
                 const result = await response.json();
-
                 if (result.success) {
                     showAlert(App.t('admin.service_updated'), 'success');
                     loadServices();
@@ -457,6 +606,117 @@
             }
         }
 
+        // Cargar lista de backups
+        async function loadBackups() {
+            try {
+                const response = await fetch(`${API_BASE}?action=getBackups`);
+                const result = await response.json();
+                if (result.success) renderBackups(result.data);
+            } catch (error) {
+                console.error('Error cargando backups:', error);
+            }
+        }
+
+        function renderBackups(backups) {
+            const container = document.getElementById('backupsList');
+            if (!backups || backups.length === 0) {
+                container.innerHTML = `<div class="empty-state"><p data-i18n="admin.no_backups">No hay backups disponibles</p></div>`;
+                return;
+            }
+            container.innerHTML = backups.map(b => `
+                <div class="backup-item animate-in">
+                    <div style="display:flex; align-items:center; gap:0.75rem;">
+                        <iconify-icon icon="mdi:database" width="20" height="20" style="color:var(--primary); opacity:0.6;"></iconify-icon>
+                        <div>
+                            <div style="font-weight:600; font-size:0.9rem;">${b.name}</div>
+                            <div style="font-size:0.75rem; color:var(--text-secondary);">${b.date} &nbsp;·&nbsp; ${formatFileSize(b.size)}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:0.5rem;">
+                        <button onclick="restoreBackup('${b.name}')" class="btn btn-small" style="background:var(--inner-bg); border:1.5px solid var(--border); color:var(--text-primary);">
+                            <iconify-icon icon="mdi:restore" width="16" height="16"></iconify-icon>
+                            Restaurar
+                        </button>
+                        <a href="${API_BASE}?action=downloadBackup&name=${encodeURIComponent(b.name)}"
+                           class="btn btn-small btn-secondary" style="text-decoration:none;" download>
+                            <iconify-icon icon="mdi:download" width="16" height="16"></iconify-icon>
+                            Descargar
+                        </a>
+                        <button onclick="deleteBackup('${b.name}')" class="btn btn-small btn-delete">
+                            <iconify-icon icon="mdi:trash-can-outline" width="16" height="16"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function uploadBackup(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('backup', file);
+            showAlert('Subiendo backup...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}?action=uploadBackup`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showAlert('Backup subido correctamente: ' + result.name, 'success');
+                    loadBackups();
+                    loadStats();
+                } else {
+                    showAlert('Error: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error de conexión', 'error');
+            }
+            input.value = '';
+        }
+
+        async function restoreBackup(name) {
+            if (!confirm(`¿Restaurar la base de datos con "${name}"?\n\nSe creará un backup automático de seguridad del estado actual antes de restaurar.`)) return;
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'restoreBackup', name })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showAlert(`✓ Base de datos restaurada. Backup de seguridad creado: ${result.safety_backup}`, 'success');
+                    loadBackups();
+                    loadStats();
+                } else {
+                    showAlert('Error: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error de conexión', 'error');
+            }
+        }
+
+        async function deleteBackup(name) {
+            if (!confirm(`¿Eliminar el backup "${name}"? Esta acción no se puede deshacer.`)) return;
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'deleteBackup', name })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showAlert('Backup eliminado correctamente', 'success');
+                    loadBackups();
+                    loadStats();
+                } else {
+                    showAlert('Error: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error de conexión', 'error');
+            }
+        }
+
         // Crear backup
         async function createBackup() {
             try {
@@ -466,12 +726,121 @@
                 if (result.success) {
                     showAlert(App.t('alerts.backup_created') + ': ' + result.file, 'success');
                     loadStats();
+                    loadBackups();
                 } else {
                     showAlert('Error al crear backup', 'error');
                 }
             } catch (error) {
                 showAlert(App.t('alerts.connection_error'), 'error');
             }
+        }
+
+        // Mostrar resultado en el panel de mantenimiento
+        function showMaintenanceResult(html) {
+            const el = document.getElementById('maintenanceResult');
+            el.style.display = 'block';
+            el.innerHTML = html;
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Verificar integridad
+        async function checkIntegrity() {
+            showMaintenanceResult(`<div class="alert alert-info"><iconify-icon icon="mdi:loading" width="18" height="18"></iconify-icon> Verificando integridad...</div>`);
+            try {
+                const response = await fetch(`${API_BASE}?action=checkIntegrity`);
+                const result = await response.json();
+                if (result.ok) {
+                    showMaintenanceResult(`
+                        <div class="alert alert-success">
+                            <iconify-icon icon="mdi:shield-check" width="18" height="18"></iconify-icon>
+                            <strong>Integridad correcta</strong> — ${result.message}
+                        </div>`);
+                } else {
+                    const problems = result.integrity.map(i => `<li>${i}</li>`).join('');
+                    showMaintenanceResult(`
+                        <div class="alert alert-error">
+                            <iconify-icon icon="mdi:shield-alert" width="18" height="18"></iconify-icon>
+                            <strong>Problemas detectados:</strong><ul style="margin-top:0.5rem;">${problems}</ul>
+                        </div>`);
+                }
+            } catch (e) {
+                showMaintenanceResult(`<div class="alert alert-error">Error de conexión</div>`);
+            }
+        }
+
+        // Diagnóstico de datos
+        async function diagnoseData() {
+            showMaintenanceResult(`<div class="alert alert-info"><iconify-icon icon="mdi:loading" width="18" height="18"></iconify-icon> Analizando datos...</div>`);
+            try {
+                const response = await fetch(`${API_BASE}?action=diagnoseData`);
+                const result = await response.json();
+                if (result.total === 0) {
+                    showMaintenanceResult(`
+                        <div class="alert alert-success">
+                            <iconify-icon icon="mdi:check-circle" width="18" height="18"></iconify-icon>
+                            <strong>Sin incidencias</strong> — ${result.message}
+                        </div>`);
+                } else {
+                    const items = result.issues.map(i => `
+                        <div style="display:flex; align-items:flex-start; gap:0.5rem; padding:0.5rem 0; border-bottom:1px solid var(--border);">
+                            <iconify-icon icon="${i.type === 'warning' ? 'mdi:alert' : 'mdi:information'}" width="16" height="16"
+                                style="color:${i.type === 'warning' ? 'var(--warning)' : '#2196F3'}; flex-shrink:0; margin-top:2px;"></iconify-icon>
+                            <span style="font-size:0.875rem;">${i.msg}</span>
+                        </div>`).join('');
+                    showMaintenanceResult(`
+                        <div style="border:1px solid var(--border); border-radius:10px; padding:1rem;">
+                            <div style="font-weight:600; margin-bottom:0.75rem; color:var(--warning);">
+                                <iconify-icon icon="mdi:alert-circle" width="18" height="18"></iconify-icon>
+                                ${result.message}
+                            </div>
+                            ${items}
+                        </div>`);
+                }
+            } catch (e) {
+                showMaintenanceResult(`<div class="alert alert-error">Error de conexión</div>`);
+            }
+        }
+
+        // Exportar JSON
+        function exportJSON() {
+            window.location.href = `${API_BASE}?action=exportJSON`;
+        }
+
+        // Importar JSON
+        async function importJSON(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const text = await file.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                showAlert('El archivo no es un JSON válido', 'error');
+                input.value = '';
+                return;
+            }
+            if (!confirm(`¿Importar datos desde "${file.name}"?\n\nEsto reemplazará TODOS los registros y servicios actuales.\nSe creará un backup de seguridad automáticamente antes de importar.`)) {
+                input.value = '';
+                return;
+            }
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'importJSON', data })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showAlert(`✓ ${result.message}. Backup de seguridad: ${result.safety_backup}`, 'success');
+                    loadStats();
+                    loadServices();
+                } else {
+                    showAlert('Error: ' + result.error, 'error');
+                }
+            } catch (e) {
+                showAlert('Error de conexión', 'error');
+            }
+            input.value = '';
         }
 
         // Optimizar base de datos
@@ -497,6 +866,31 @@
                 }
             } catch (error) {
                 showAlert(App.t('alerts.connection_error'), 'error');
+            }
+        }
+
+        // Recalcular totales de registros de trabajo
+        async function recalculateTotals() {
+            if (!confirm('¿Recalcular los totales de todos los registros de trabajo (total = horas × tarifa)?\n\nEsto corrige posibles descuadres acumulados.')) return;
+
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'recalculateTotals' })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    let msg = `✓ ${result.message}`;
+                    if (result.broken && result.broken.length > 0) {
+                        msg += `\n⚠ ${result.broken.length} registro(s) sin horas/tarifa no se pudieron recalcular.`;
+                    }
+                    showMaintenanceResult(msg, result.broken?.length > 0 ? 'warning' : 'success');
+                } else {
+                    showMaintenanceResult('Error al recalcular totales', 'error');
+                }
+            } catch (e) {
+                showMaintenanceResult('Error de conexión', 'error');
             }
         }
 
@@ -553,6 +947,312 @@
                 showAlert(App.t('alerts.connection_error'), 'error');
             }
         }
+
+        // ── TELEGRAM NOTIFICATIONS ────────────────────────────────────────────
+
+        const DAY_LABELS = ['L', 'M', 'X', 'J', 'V', 'S', 'D']; // 1=Mon … 7=Sun
+        const DAY_FULL   = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
+        let tgNotifications = [];  // in-memory list
+        let tgHasToken      = false;
+
+        /** Render clickable day-picker inside the add/edit form */
+        function initDayPicker() {
+            const picker = document.getElementById('dayPicker');
+            if (!picker) return;
+            picker.innerHTML = DAY_LABELS.map((lbl, i) => {
+                const dayNum = i + 1; // 1=Mon … 7=Sun
+                return `<span class="day-pill" data-day="${dayNum}" title="${DAY_FULL[i]}" onclick="toggleDayPill(this)">${lbl}</span>`;
+            }).join('');
+        }
+
+        function toggleDayPill(el) {
+            el.classList.toggle('active');
+        }
+
+        function getSelectedDays() {
+            return [...document.querySelectorAll('#dayPicker .day-pill.active')]
+                .map(el => parseInt(el.dataset.day));
+        }
+
+        function setSelectedDays(days) {
+            document.querySelectorAll('#dayPicker .day-pill').forEach(el => {
+                el.classList.toggle('active', days.includes(parseInt(el.dataset.day)));
+            });
+        }
+
+        /** Load config + notifications from API */
+        async function loadTelegramConfig() {
+            try {
+                const resp   = await fetch(`${API_BASE}?action=getTelegramConfig`);
+                const result = await resp.json();
+
+                if (result.success) {
+                    tgHasToken      = result.has_token;
+                    tgNotifications = result.notifications || [];
+
+                    // Fill in Chat ID (token stays blank for security)
+                    document.getElementById('tgChatId').value = result.chat_id || '';
+                    if (result.token_masked) {
+                        document.getElementById('tgToken').placeholder = result.token_masked;
+                    }
+                }
+            } catch (e) {
+                console.error('Error cargando Telegram config:', e);
+            }
+            // Always render — outside try/catch so errors are visible in console
+            renderNotifications();
+        }
+
+        /** Save token + chat_id */
+        async function saveTelegramConfig() {
+            const token  = document.getElementById('tgToken').value.trim();
+            const chatId = document.getElementById('tgChatId').value.trim();
+
+            if (!token && !tgHasToken) {
+                showAlert('Introduce el Token del Bot antes de guardar', 'error');
+                return;
+            }
+
+            try {
+                const resp = await fetch(API_BASE, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ action: 'saveTelegramConfig', token, chat_id: chatId })
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    document.getElementById('tgToken').value = '';
+                    loadTelegramConfig();
+                } else {
+                    showAlert('Error: ' + result.error, 'error');
+                }
+            } catch (e) {
+                showAlert('Error de conexión', 'error');
+            }
+        }
+
+        /** Send a test message */
+        async function testTelegram() {
+            const token  = document.getElementById('tgToken').value.trim();
+            const chatId = document.getElementById('tgChatId').value.trim();
+
+            if (!tgHasToken && !token) {
+                showAlert('Guarda el Token del Bot antes de enviar una prueba', 'error');
+                return;
+            }
+            if (!chatId) {
+                showAlert('Introduce el Chat ID antes de enviar una prueba', 'error');
+                return;
+            }
+
+            showAlert('Enviando mensaje de prueba...', 'info');
+            try {
+                const resp = await fetch(API_BASE, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ action: 'testTelegram', token, chat_id: chatId })
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    showAlert('✓ ' + result.message, 'success');
+                } else {
+                    showAlert('Error Telegram: ' + (result.error || 'Respuesta inesperada'), 'error');
+                }
+            } catch (e) {
+                showAlert('Error de conexión con el servidor', 'error');
+            }
+        }
+
+        /** Check cron daemon status inside Docker */
+        async function checkCronStatus() {
+            const el = document.getElementById('cronResult');
+            el.innerHTML = `<div style="font-size:0.78rem; color:var(--text-secondary); padding:0.4rem 0;">Verificando...</div>`;
+            try {
+                const resp = await fetch(API_BASE, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ action: 'installTelegramCron' })
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    el.innerHTML = `<div class="alert alert-success" style="margin:0; font-size:0.82rem;">
+                        <iconify-icon icon="mdi:check-circle" width="15" height="15"></iconify-icon>
+                        ${result.message}
+                    </div>`;
+                } else {
+                    el.innerHTML = `<div class="alert alert-warning" style="margin:0; font-size:0.82rem;">
+                        <iconify-icon icon="mdi:alert" width="15" height="15"></iconify-icon>
+                        ${result.message}
+                    </div>`;
+                }
+            } catch (e) {
+                el.innerHTML = `<div class="alert alert-error" style="margin:0; font-size:0.82rem;">Error de conexión</div>`;
+            }
+        }
+
+        // ── Notification list ───────────────────────────────────
+
+        function renderNotifications() {
+            const container = document.getElementById('notificationsList');
+            if (!container) return; // guard against missing element
+            if (!Array.isArray(tgNotifications) || !tgNotifications.length) {
+                container.innerHTML = `<div class="empty-state">
+                    <p>No hay notificaciones configuradas. Pulsa "Nueva Notificación" para añadir una.</p>
+                </div>`;
+                return;
+            }
+
+            container.innerHTML = tgNotifications.map(n => {
+                const dayPills = DAY_LABELS.map((lbl, i) => {
+                    const active = n.days.includes(i + 1) ? 'active' : '';
+                    return `<span class="day-pill ${active}" title="${DAY_FULL[i]}">${lbl}</span>`;
+                }).join('');
+
+                return `
+                <div class="notif-item animate-in ${n.enabled ? '' : 'disabled'}" id="notif-${n.id}">
+                    <div class="notif-days">${dayPills}</div>
+                    <div class="notif-time">${n.time}</div>
+                    <div class="notif-message" title="${escapeHtml(n.message)}">${escapeHtml(n.message)}</div>
+                    <div class="notif-actions">
+                        <label class="toggle-switch" title="${n.enabled ? 'Deshabilitar' : 'Habilitar'}">
+                            <input type="checkbox" ${n.enabled ? 'checked' : ''}
+                                onchange="toggleNotification('${n.id}', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <button onclick="editNotification('${n.id}')" class="btn btn-small" style="background:var(--inner-bg); border:1.5px solid var(--border); color:var(--text-primary);">
+                            <iconify-icon icon="mdi:pencil" width="16" height="16"></iconify-icon>
+                        </button>
+                        <button onclick="deleteNotification('${n.id}')" class="btn btn-small btn-delete">
+                            <iconify-icon icon="mdi:trash-can-outline" width="16" height="16"></iconify-icon>
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        /** Show add form (empty) */
+        function showAddNotification() {
+            document.getElementById('editNotifId').value    = '';
+            document.getElementById('notifTime').value     = '09:00';
+            document.getElementById('notifMessage').value  = '';
+            setSelectedDays([1, 2, 3, 4, 5]); // Mon-Fri default
+
+            const form = document.getElementById('addNotificationForm');
+            form.style.display = 'block';
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            document.getElementById('notifMessage').focus();
+        }
+
+        /** Populate form with existing notification data for editing */
+        function editNotification(id) {
+            const notif = tgNotifications.find(n => n.id === id);
+            if (!notif) return;
+
+            document.getElementById('editNotifId').value   = id;
+            document.getElementById('notifTime').value     = notif.time;
+            document.getElementById('notifMessage').value  = notif.message;
+            setSelectedDays(notif.days);
+
+            const form = document.getElementById('addNotificationForm');
+            form.style.display = 'block';
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function hideAddNotification() {
+            document.getElementById('addNotificationForm').style.display = 'none';
+        }
+
+        /** Save (add or update) a notification */
+        async function saveNotification() {
+            const id      = document.getElementById('editNotifId').value;
+            const time    = document.getElementById('notifTime').value;
+            const message = document.getElementById('notifMessage').value.trim();
+            const days    = getSelectedDays();
+
+            if (!time || !message) {
+                showAlert('La hora y el mensaje son obligatorios', 'error');
+                return;
+            }
+            if (days.length === 0) {
+                showAlert('Selecciona al menos un día de la semana', 'error');
+                return;
+            }
+
+            const isEdit = id !== '';
+            const payload = isEdit
+                ? { action: 'updateTelegramNotification', id, time, message, days }
+                : { action: 'addTelegramNotification',              time, message, days };
+
+            try {
+                const resp = await fetch(API_BASE, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify(payload)
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    hideAddNotification();
+                    loadTelegramConfig();
+                } else {
+                    showAlert('Error: ' + result.error, 'error');
+                }
+            } catch (e) {
+                showAlert('Error de conexión', 'error');
+            }
+        }
+
+        /** Toggle enabled/disabled */
+        async function toggleNotification(id, enabled) {
+            try {
+                const resp = await fetch(API_BASE, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ action: 'updateTelegramNotification', id, enabled })
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    loadTelegramConfig();
+                } else {
+                    showAlert('Error: ' + result.error, 'error');
+                }
+            } catch (e) {
+                showAlert('Error de conexión', 'error');
+            }
+        }
+
+        /** Delete a notification */
+        async function deleteNotification(id) {
+            if (!confirm('¿Eliminar esta notificación?')) return;
+            try {
+                const resp = await fetch(API_BASE, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ action: 'deleteTelegramNotification', id })
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    showAlert('Notificación eliminada', 'success');
+                    loadTelegramConfig();
+                } else {
+                    showAlert('Error: ' + result.error, 'error');
+                }
+            } catch (e) {
+                showAlert('Error de conexión', 'error');
+            }
+        }
+
+        // ── END TELEGRAM ──────────────────────────────────────────
 
         // Utilidades
         function formatFileSize(bytes) {

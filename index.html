@@ -14,35 +14,52 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1><iconify-icon icon="mdi:briefcase" width="36" height="36"></iconify-icon> <span data-i18n="app.title">Gestion de Pagos</span></h1>
-            <p class="subtitle" data-i18n="app.subtitle">Control de servicios del hogar</p>
-            <div class="header-actions">
-                <button onclick="exportToCSV()" class="btn btn-small header-btn">
-                    <iconify-icon icon="mdi:file-export" width="18" height="18"></iconify-icon> <span data-i18n="nav.export_csv">Exportar CSV</span>
-                </button>
-                <a href="admin.html" class="btn btn-small header-btn" style="text-decoration: none;">
-                    <iconify-icon icon="mdi:cog" width="18" height="18"></iconify-icon> <span data-i18n="nav.admin">Admin</span>
-                </a>
+        <div class="hero-header">
+            <img src="gestion_pagos.png" alt="Gestión de Pagos" class="hero-img">
+            <div class="hero-overlay"></div>
+            <div class="hero-actions">
+                <div class="hero-buttons">
+                    <button onclick="shareResumen()" class="btn btn-small hero-btn">
+                        <iconify-icon icon="mdi:share-variant" width="16" height="16"></iconify-icon>
+                        <span>Compartir</span>
+                    </button>
+                    <button onclick="exportToCSV()" class="btn btn-small hero-btn">
+                        <iconify-icon icon="mdi:file-export" width="16" height="16"></iconify-icon>
+                        <span data-i18n="nav.export_csv">Exportar CSV</span>
+                    </button>
+                    <a href="admin.html" class="btn btn-small hero-btn" style="text-decoration:none;">
+                        <iconify-icon icon="mdi:cog" width="16" height="16"></iconify-icon>
+                        <span data-i18n="nav.admin">Admin</span>
+                    </a>
+                </div>
                 <div id="themeToggle" class="theme-toggle-group"></div>
             </div>
-        </header>
+        </div>
 
         <div class="dashboard">
             <div class="stat-card">
-                <div class="stat-label" data-i18n="dashboard.current_balance">Saldo Actual</div>
-                <div class="stat-value" id="currentBalance" data-i18n="dashboard.loading">Cargando...</div>
-                <div class="stat-description" id="balanceDescription" data-i18n="dashboard.fetching">Obteniendo datos...</div>
+                <div class="stat-card-icon"><iconify-icon icon="mdi:scale-balance" width="24" height="24"></iconify-icon></div>
+                <div class="stat-card-body">
+                    <div class="stat-label" data-i18n="dashboard.current_balance">Saldo Actual</div>
+                    <div class="stat-description" id="balanceDescription" data-i18n="dashboard.fetching">Obteniendo datos...</div>
+                </div>
+                <div class="stat-value" id="currentBalance" data-i18n="dashboard.loading">—</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label" data-i18n="dashboard.total_worked">Total Trabajado</div>
-                <div class="stat-value neutral" id="totalWorked" data-i18n="dashboard.loading">Cargando...</div>
-                <div class="stat-description" id="totalHours" data-i18n="dashboard.calculating">Calculando...</div>
+                <div class="stat-card-icon"><iconify-icon icon="mdi:clock-outline" width="24" height="24"></iconify-icon></div>
+                <div class="stat-card-body">
+                    <div class="stat-label" data-i18n="dashboard.total_worked">Total Trabajado</div>
+                    <div class="stat-description" id="totalHours" data-i18n="dashboard.calculating">Calculando...</div>
+                </div>
+                <div class="stat-value neutral" id="totalWorked" data-i18n="dashboard.loading">—</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label" data-i18n="dashboard.total_paid">Total Pagado</div>
-                <div class="stat-value neutral" id="totalPaid" data-i18n="dashboard.loading">Cargando...</div>
-                <div class="stat-description" id="lastPayment" data-i18n="dashboard.no_data">Sin datos</div>
+                <div class="stat-card-icon"><iconify-icon icon="mdi:cash-check" width="24" height="24"></iconify-icon></div>
+                <div class="stat-card-body">
+                    <div class="stat-label" data-i18n="dashboard.total_paid">Total Pagado</div>
+                    <div class="stat-description" id="lastPayment" data-i18n="dashboard.no_data">Sin datos</div>
+                </div>
+                <div class="stat-value neutral" id="totalPaid" data-i18n="dashboard.loading">—</div>
             </div>
         </div>
 
@@ -65,10 +82,6 @@
                     <div class="form-group">
                         <label for="workHours" data-i18n="forms.hours_worked">Horas trabajadas</label>
                         <input type="number" id="workHours" step="0.5" min="0.5" required placeholder="6">
-                    </div>
-                    <div class="form-group">
-                        <label for="workRate"><span data-i18n="forms.hourly_rate">Tarifa por hora</span> (&euro;)</label>
-                        <input type="number" id="workRate" step="0.5" min="0" required placeholder="12" value="12">
                     </div>
                     <div class="form-group">
                         <label for="workNotes" data-i18n="forms.notes_optional">Notas (opcional)</label>
@@ -104,19 +117,49 @@
             </div>
         </div>
 
-        <div class="main-grid">
-            <div class="card full-width">
-                <div class="card-header">
-                    <h2 class="card-title"><iconify-icon icon="mdi:chart-line" width="24" height="24"></iconify-icon> <span data-i18n="chart.title">Evolucion del Saldo</span></h2>
-                    <div class="service-selector">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title"><iconify-icon icon="mdi:chart-line" width="24" height="24"></iconify-icon> <span data-i18n="chart.title">Evolucion del Saldo</span></h2>
+                <div class="chart-controls">
+                    <div class="service-selector service-selector-sm" id="chartServiceSelector">
                         <button class="service-btn active" data-service="all" data-i18n="chart.all">Todos</button>
-                        <!-- Dynamic service buttons will be populated by JS -->
+                    </div>
+                    <div class="chart-period-sep"></div>
+                    <div class="service-selector service-selector-sm" id="chartPeriodSelector">
+                        <button class="service-btn active" data-period="month">Este mes</button>
+                        <button class="service-btn" data-period="1m">1m</button>
+                        <button class="service-btn" data-period="3m">3m</button>
+                        <button class="service-btn" data-period="6m">6m</button>
+                        <button class="service-btn" data-period="all">Todo</button>
                     </div>
                 </div>
-                <div class="chart-container">
-                    <canvas id="balanceChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="balanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Resumen mensual -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title"><iconify-icon icon="mdi:calendar-month" width="24" height="24"></iconify-icon> Resumen Mensual</h2>
+                <div class="service-selector" id="summaryServiceSelector">
+                    <button class="service-btn active" data-summary-service="all">Todos</button>
                 </div>
             </div>
+            <div class="history-date-filter">
+                <iconify-icon icon="mdi:calendar-range" width="16" height="16" style="color:var(--text-secondary)"></iconify-icon>
+                <input type="date" id="summaryDateFrom" onchange="renderMonthlySummary()" title="Desde (filtro personalizado)">
+                <span style="color:var(--text-secondary); font-size:0.8rem;">—</span>
+                <input type="date" id="summaryDateTo" onchange="renderMonthlySummary()" title="Hasta (filtro personalizado)">
+                <div class="service-selector service-selector-sm history-presets" id="summaryPresets">
+                    <button class="service-btn" data-months="3" onclick="setSummaryPreset(3)">3 meses</button>
+                    <button class="service-btn" data-months="6" onclick="setSummaryPreset(6)">6 meses</button>
+                    <button class="service-btn" data-months="12" onclick="setSummaryPreset(12)">1 año</button>
+                </div>
+                <span id="summaryCount" class="history-count"></span>
+            </div>
+            <div id="monthlySummaryContainer"></div>
         </div>
 
         <div class="card">
@@ -129,6 +172,19 @@
                     <button class="service-btn" data-filter="payment" data-i18n="history.payments">Pagos</button>
                 </div>
             </div>
+            <div class="history-date-filter">
+                <iconify-icon icon="mdi:calendar-range" width="16" height="16" style="color:var(--text-secondary)"></iconify-icon>
+                <input type="date" id="historyDateFrom" placeholder="Desde" onchange="renderHistory()" title="Desde (filtro personalizado)">
+                <span style="color:var(--text-secondary); font-size:0.8rem;">—</span>
+                <input type="date" id="historyDateTo" placeholder="Hasta" onchange="renderHistory()" title="Hasta (filtro personalizado)">
+                <div class="service-selector service-selector-sm history-presets" id="historyPresets">
+                    <button class="service-btn" data-months="1" onclick="setHistoryPreset(1)">1 mes</button>
+                    <button class="service-btn" data-months="3" onclick="setHistoryPreset(3)">3 meses</button>
+                    <button class="service-btn" data-months="6" onclick="setHistoryPreset(6)">6 meses</button>
+                    <button class="service-btn" data-months="12" onclick="setHistoryPreset(12)">1 año</button>
+                </div>
+                <span id="historyCount" class="history-count"></span>
+            </div>
             <div id="historyContainer">
                 <div class="loading">
                     <div class="spinner"></div>
@@ -138,6 +194,7 @@
         </div>
     </div>
 
+
     <script>
         // Configuración de la API
         const API_BASE = 'api/records.php';
@@ -146,6 +203,9 @@
         let records = [];
         let services = [];
         let currentFilter = 'all';
+        let currentChartService = 'all';
+        let currentChartPeriod = 'month';
+        let currentSummaryService = 'all';
         let balanceChart = null;
 
         // Inicialización
@@ -160,8 +220,10 @@
             document.addEventListener('langChanged', () => {
                 updateDashboard();
                 renderHistory();
+                renderMonthlySummary();
                 renderChartServiceButtons();
                 renderHistoryFilterButtons();
+                renderSummaryServiceButtons();
             });
         });
 
@@ -198,21 +260,9 @@
             workSelect.innerHTML = options;
             paymentSelect.innerHTML = options;
 
-            // Establecer tarifa por defecto cuando se selecciona un servicio
-            workSelect.addEventListener('change', (e) => {
-                const service = services.find(s => s.name === e.target.value);
-                if (service && service.rate) {
-                    document.getElementById('workRate').value = service.rate;
-                }
-            });
-
-            // Establecer tarifa inicial
-            if (services.length > 0 && services[0].rate) {
-                document.getElementById('workRate').value = services[0].rate;
-            }
-
             renderChartServiceButtons();
             renderHistoryFilterButtons();
+            renderSummaryServiceButtons();
         }
 
         // Obtener icono de servicio
@@ -220,19 +270,32 @@
             return App.icons.getServiceIcon(name);
         }
 
-        // Renderizar botones de servicio del gráfico
+        // Renderizar botones de servicio y período del gráfico
         function renderChartServiceButtons() {
-            const container = document.querySelector('[data-service="all"]')?.parentElement;
-            if (!container) return;
+            const svc = document.getElementById('chartServiceSelector');
+            if (!svc) return;
 
-            container.innerHTML = `<button class="service-btn active" data-service="all">${App.t('chart.all')}</button>` +
-                services.map(s => `<button class="service-btn" data-service="${s.name}">${s.name}</button>`).join('');
+            svc.innerHTML = `<button class="service-btn ${currentChartService === 'all' ? 'active' : ''}" data-service="all">${App.t('chart.all')}</button>` +
+                services.map(s => `<button class="service-btn ${currentChartService === s.name ? 'active' : ''}" data-service="${s.name}">${s.name}</button>`).join('');
 
-            container.querySelectorAll('[data-service]').forEach(btn => {
+            svc.querySelectorAll('[data-service]').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    container.querySelectorAll('[data-service]').forEach(b => b.classList.remove('active'));
+                    svc.querySelectorAll('[data-service]').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    renderChart(btn.dataset.service);
+                    currentChartService = btn.dataset.service;
+                    renderChart();
+                });
+            });
+
+            const per = document.getElementById('chartPeriodSelector');
+            if (!per) return;
+
+            per.querySelectorAll('[data-period]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    per.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentChartPeriod = btn.dataset.period;
+                    renderChart();
                 });
             });
         }
@@ -267,6 +330,7 @@
                     records = result.data;
                     updateDashboard();
                     renderHistory();
+                    renderMonthlySummary();
                     renderChart();
                 } else {
                     showAlert('Error al cargar datos: ' + result.error, 'error');
@@ -282,6 +346,30 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('workDate').value = today;
             document.getElementById('paymentDate').value = today;
+            // Historial: por defecto, solo el último mes
+            document.getElementById('historyDateFrom').value = localISODate(monthsAgo(1));
+            // Resumen mensual: por defecto, el último año (12 meses completos incluido el actual)
+            document.getElementById('summaryDateFrom').value = localISODate(summaryPresetStart(12));
+        }
+
+        // Primer día del mes que deja N meses completos contando el actual
+        function summaryPresetStart(n) {
+            const now = new Date();
+            return new Date(now.getFullYear(), now.getMonth() - (n - 1), 1);
+        }
+
+        function localISODate(d) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        function monthsAgo(n) {
+            const d = new Date();
+            d.setMonth(d.getMonth() - n);
+            return d;
+        }
+
+        function escapeHtml(str) {
+            return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
 
         // Inicializar formularios
@@ -289,11 +377,12 @@
             document.getElementById('workForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
 
+                const selectedService = services.find(s => s.name === document.getElementById('workService').value);
                 const data = {
                     service: document.getElementById('workService').value,
                     date: document.getElementById('workDate').value,
                     hours: parseFloat(document.getElementById('workHours').value),
-                    rate: parseFloat(document.getElementById('workRate').value),
+                    rate: selectedService?.rate || 0,
                     notes: document.getElementById('workNotes').value
                 };
 
@@ -367,16 +456,25 @@
 
             filteredRecords.forEach(record => {
                 if (record.type === 'work') {
-                    balance -= parseFloat(record.total);
-                    totalWorked += parseFloat(record.total);
-                    totalHours += parseFloat(record.hours);
+                    const t = parseFloat(record.total) || 0;
+                    const h = parseFloat(record.hours) || 0;
+                    balance -= t;
+                    totalWorked += t;
+                    totalHours += h;
                 } else if (record.type === 'payment') {
-                    balance += parseFloat(record.amount);
-                    totalPaid += parseFloat(record.amount);
+                    const a = parseFloat(record.amount) || 0;
+                    balance += a;
+                    totalPaid += a;
                 }
             });
 
-            return { balance, totalWorked, totalPaid, totalHours };
+            // Redondear a 2 decimales para evitar errores de coma flotante acumulados
+            return {
+                balance:     Math.round(balance     * 100) / 100,
+                totalWorked: Math.round(totalWorked * 100) / 100,
+                totalPaid:   Math.round(totalPaid   * 100) / 100,
+                totalHours:  Math.round(totalHours  * 100) / 100
+            };
         }
 
         // Actualizar dashboard
@@ -432,21 +530,60 @@
             }
         }
 
-        // Renderizar historial
+        // Renderizar historial (formato compacto: una línea por movimiento)
         function renderHistory() {
             const container = document.getElementById('historyContainer');
+            const countEl   = document.getElementById('historyCount');
 
-            let filteredRecords = records;
+            // 1) El saldo se calcula SIEMPRE sobre el historial completo (solo filtrado por servicio),
+            //    para que no se "reinicie" a 0 al filtrar por fechas o por tipo.
+            const isTypeFilter = currentFilter === 'work' || currentFilter === 'payment';
+            const base = (currentFilter === 'all' || isTypeFilter)
+                ? records
+                : records.filter(r => r.service === currentFilter);
 
-            if (currentFilter !== 'all') {
-                if (currentFilter === 'work' || currentFilter === 'payment') {
-                    filteredRecords = records.filter(r => r.type === currentFilter);
+            const sorted = [...base].sort((a, b) => {
+                const d = new Date(a.date) - new Date(b.date);
+                return d !== 0 ? d : new Date(a.created_at) - new Date(b.created_at);
+            });
+
+            let running = 0;
+            let withBalance = sorted.map(record => {
+                const balanceBefore = running;
+                if (record.type === 'work') {
+                    running -= parseFloat(record.total) || 0;
                 } else {
-                    filteredRecords = records.filter(r => r.service === currentFilter);
+                    running += parseFloat(record.amount) || 0;
+                }
+                running = Math.round(running * 100) / 100;
+                return { ...record, balanceBefore, balanceAfter: running };
+            });
+
+            // 2) Filtros de visualización: tipo y fechas
+            if (isTypeFilter) withBalance = withBalance.filter(r => r.type === currentFilter);
+            const totalInFilter = withBalance.length;
+            const dateFrom = document.getElementById('historyDateFrom')?.value;
+            const dateTo   = document.getElementById('historyDateTo')?.value;
+            if (dateFrom) withBalance = withBalance.filter(r => r.date >= dateFrom);
+            if (dateTo)   withBalance = withBalance.filter(r => r.date <= dateTo);
+
+            // Marcar el botón predefinido activo (si las fechas coinciden con uno)
+            document.querySelectorAll('#historyPresets [data-months]').forEach(btn => {
+                const n = parseInt(btn.dataset.months, 10);
+                btn.classList.toggle('active', !dateTo && dateFrom === localISODate(monthsAgo(n)));
+            });
+
+            if (countEl) {
+                const anyFilter = dateFrom || dateTo || currentFilter !== 'all';
+                countEl.innerHTML = (dateFrom || dateTo) && withBalance.length < totalInFilter
+                    ? `<span>${withBalance.length} de ${totalInFilter}</span>`
+                    : `<span>${withBalance.length} movimientos</span>`;
+                if (anyFilter) {
+                    countEl.innerHTML += `<button class="service-btn" onclick="clearAllHistoryFilters()" title="Quitar todos los filtros"><iconify-icon icon="mdi:eye-outline" width="14" height="14"></iconify-icon> Ver todos</button>`;
                 }
             }
 
-            if (filteredRecords.length === 0) {
+            if (withBalance.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon"><iconify-icon icon="mdi:inbox-outline" width="48" height="48"></iconify-icon></div>
@@ -456,157 +593,402 @@
                 return;
             }
 
-            // Ordenar por fecha
-            filteredRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+            // Mostrar más reciente primero
+            withBalance.reverse();
 
-            // Calcular saldo acumulado
-            let runningBalance = 0;
-            const recordsWithBalance = filteredRecords.map(record => {
-                if (record.type === 'work') {
-                    runningBalance -= parseFloat(record.total);
-                } else {
-                    runningBalance += parseFloat(record.amount);
-                }
-                return { ...record, balanceAfter: runningBalance };
-            }).reverse();
+            container.innerHTML = withBalance.map(record => {
+                const isWork = record.type === 'work';
+                const total  = parseFloat(isWork ? record.total : record.amount) || 0;
 
-            container.innerHTML = recordsWithBalance.map(record => {
-                if (record.type === 'work') {
-                    return `
-                        <div class="history-item animate-in">
-                            <div class="history-header">
-                                <span class="history-date">${formatDate(record.date)}</span>
-                                <span class="history-type work">${record.service}</span>
-                            </div>
-                            <div class="history-details">
-                                <div class="detail-item">
-                                    <div class="detail-label">${App.t('history.hours')}</div>
-                                    <div class="detail-value">${record.hours}h</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-label">${App.t('history.rate')}</div>
-                                    <div class="detail-value">${formatCurrency(record.rate)}/h</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-label">${App.t('history.total')}</div>
-                                    <div class="detail-value">${formatCurrency(record.total)}</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-label">${App.t('history.balance_after')}</div>
-                                    <div class="detail-value" style="color: ${record.balanceAfter < 0 ? 'var(--danger)' : record.balanceAfter > 0 ? 'var(--success)' : 'var(--text-primary)'}">
-                                        ${formatCurrency(Math.abs(record.balanceAfter))}
-                                    </div>
-                                </div>
-                            </div>
-                            ${record.notes ? `<p style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--text-secondary);"><iconify-icon icon="mdi:note-text" width="16" height="16"></iconify-icon> ${record.notes}</p>` : ''}
-                        </div>
-                    `;
-                } else {
-                    return `
-                        <div class="history-item payment animate-in">
-                            <div class="history-header">
-                                <span class="history-date">${formatDate(record.date)}</span>
-                                <span class="history-type payment">${record.service}</span>
-                            </div>
-                            <div class="history-details">
-                                <div class="detail-item">
-                                    <div class="detail-label">${App.t('history.amount_paid')}</div>
-                                    <div class="detail-value">${formatCurrency(record.amount)}</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-label">${App.t('history.balance_after')}</div>
-                                    <div class="detail-value" style="color: ${record.balanceAfter < 0 ? 'var(--danger)' : record.balanceAfter > 0 ? 'var(--success)' : 'var(--text-primary)'}">
-                                        ${formatCurrency(Math.abs(record.balanceAfter))}
-                                    </div>
-                                </div>
-                            </div>
-                            ${record.notes ? `<p style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--text-secondary);"><iconify-icon icon="mdi:note-text" width="16" height="16"></iconify-icon> ${record.notes}</p>` : ''}
-                        </div>
-                    `;
-                }
+                const detail = isWork
+                    ? `<span class="hr-detail" title="Horas trabajadas × precio/hora = coste del trabajo">
+                           <span class="hr-kind">Horas:</span> ${record.hours}h × ${formatCurrency(parseFloat(record.rate) || 0)} = <strong>${formatCurrency(total)}</strong>
+                       </span>`
+                    : `<span class="hr-detail" title="Pago recibido">
+                           <span class="hr-kind">Pago:</span> <strong class="hr-pay">+${formatCurrency(total)}</strong>
+                       </span>`;
+
+                const notes = record.notes
+                    ? `<span class="hr-notes" title="${escapeHtml(record.notes)}"><iconify-icon icon="mdi:note-text" width="13" height="13"></iconify-icon>${escapeHtml(record.notes)}</span>`
+                    : '';
+
+                return `
+                    <div class="history-row ${isWork ? 'work' : 'payment'}" id="hi-${record.id}">
+                        <span class="hr-date">${formatDate(record.date)}</span>
+                        <span class="history-type ${isWork ? 'work' : 'payment'}">${escapeHtml(record.service)}</span>
+                        <span class="hr-main">${detail}${notes}</span>
+                        ${renderBalanceRow(record)}
+                        <span class="hr-actions">
+                            <button class="btn-edit" onclick="openEditModal(${record.id})" title="Editar">
+                                <iconify-icon icon="mdi:pencil" width="14" height="14"></iconify-icon>
+                            </button>
+                            <button class="btn-delete" onclick="deleteRecord(${record.id})" title="Eliminar">
+                                <iconify-icon icon="mdi:trash-can-outline" width="14" height="14"></iconify-icon>
+                            </button>
+                        </span>
+                    </div>
+                `;
             }).join('');
         }
 
-        // Renderizar gráfico
-        function renderChart(serviceFilter = 'all') {
-            const ctx = document.getElementById('balanceChart').getContext('2d');
+        // Saldo compacto: "antes → después" (el desglose completo va en el tooltip)
+        function renderBalanceRow(record) {
+            const before = record.balanceBefore;
+            const after  = record.balanceAfter;
+            const color  = v => v < 0 ? 'var(--danger)' : v > 0 ? 'var(--success)' : 'var(--text-secondary)';
+            const label  = v => v < 0 ? 'pendiente' : v > 0 ? 'a favor' : 'saldo cero';
+            const amt    = parseFloat(record.type === 'work' ? record.total : record.amount) || 0;
+            const fmt    = v => formatCurrency(Math.abs(v));
 
-            let filteredRecords = serviceFilter === 'all'
-                ? records
-                : records.filter(r => r.service === serviceFilter);
+            const tip = `Antes: ${fmt(before)} ${label(before)} · ${record.type === 'work' ? 'Este trabajo' : 'Este pago'}: ${formatCurrency(amt)} · Después: ${fmt(after)} ${label(after)}`;
 
-            if (filteredRecords.length === 0) {
-                if (balanceChart) {
-                    balanceChart.destroy();
-                    balanceChart = null;
-                }
-                return;
+            return `<span class="hr-balance" title="${tip}">
+                        <span style="color:${color(before)}">${fmt(before)}</span>
+                        <span class="balance-op">→</span>
+                        <strong style="color:${color(after)}">${fmt(after)}</strong>
+                        <span class="hr-balance-label" style="color:${color(after)}">${label(after)}</span>
+                    </span>`;
+        }
+
+        // Edición de registros
+        let editingRecordId = null;
+
+        function openEditModal(id) {
+            const record = records.find(r => r.id === id);
+            if (!record) return;
+            editingRecordId = id;
+
+            const el = document.getElementById(`hi-${id}`);
+            if (!el) return;
+
+            const serviceOptions = services.map(s =>
+                `<option value="${s.name}" ${s.name === record.service ? 'selected' : ''}>${s.name}</option>`
+            ).join('');
+
+            const isWork = record.type === 'work';
+            const extraFields = isWork ? `
+                <div class="form-group">
+                    <label>Horas</label>
+                    <input type="number" id="editHours" step="0.5" min="0.5" value="${record.hours}">
+                </div>
+                <div class="form-group">
+                    <label>Tarifa (€/h)</label>
+                    <input type="number" id="editRate" step="0.5" min="0" value="${record.rate}">
+                </div>
+            ` : `
+                <div class="form-group">
+                    <label>Cantidad (€)</label>
+                    <input type="number" id="editAmount" step="0.01" min="0" value="${record.amount}">
+                </div>
+                <div class="form-group"></div>
+            `;
+
+            el.classList.add('editing');
+            el.innerHTML = `
+                <div class="inline-edit-title">Editando registro — ${formatDate(record.date)} · ${record.service}</div>
+                <div class="inline-edit-fields">
+                    <div class="form-group">
+                        <label>Servicio</label>
+                        <select id="editService">${serviceOptions}</select>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha</label>
+                        <input type="date" id="editDate" value="${record.date}">
+                    </div>
+                    ${extraFields}
+                    <div class="form-group full">
+                        <label>Notas</label>
+                        <input type="text" id="editNotes" value="${record.notes || ''}" placeholder="Opcional">
+                    </div>
+                </div>
+                <div class="inline-edit-actions">
+                    <button onclick="closeEditModal()" class="btn btn-small">Cancelar</button>
+                    <button onclick="saveEditRecord()" class="btn btn-primary btn-small">Guardar cambios</button>
+                </div>
+            `;
+
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function closeEditModal() {
+            editingRecordId = null;
+            renderHistory();
+        }
+
+        async function saveEditRecord() {
+            if (!editingRecordId) return;
+            const record = records.find(r => r.id === editingRecordId);
+            if (!record) return;
+
+            const data = {
+                service: document.getElementById('editService').value,
+                date: document.getElementById('editDate').value,
+                notes: document.getElementById('editNotes').value
+            };
+
+            if (record.type === 'work') {
+                data.hours = parseFloat(document.getElementById('editHours').value);
+                data.rate = parseFloat(document.getElementById('editRate').value);
+            } else {
+                data.amount = parseFloat(document.getElementById('editAmount').value);
             }
 
-            // Ordenar por fecha
-            filteredRecords.sort((a, b) => new Date(a.date) - new Date(b.date));
+            try {
+                const response = await fetch(`${API_BASE}?path=record/${editingRecordId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
 
-            // Calcular saldo en el tiempo
-            let balance = 0;
-            const data = filteredRecords.map(record => {
-                if (record.type === 'work') {
-                    balance -= parseFloat(record.total);
+                if (result.success) {
+                    closeEditModal();
+                    showAlert('Registro actualizado correctamente', 'success');
+                    loadData();
                 } else {
-                    balance += parseFloat(record.amount);
+                    showAlert('Error: ' + result.error, 'error');
                 }
-                return {
-                    x: record.date,
-                    y: balance
-                };
+            } catch (error) {
+                showAlert(App.t('alerts.connection_error'), 'error');
+            }
+        }
+
+        async function deleteRecord(id) {
+            if (!confirm('¿Eliminar este registro? Esta acción no se puede deshacer.')) return;
+            try {
+                const response = await fetch(`${API_BASE}?path=record/${id}`, { method: 'DELETE' });
+                const result = await response.json();
+                if (result.success) {
+                    showAlert('Registro eliminado', 'success');
+                    loadData();
+                } else {
+                    showAlert('Error: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showAlert(App.t('alerts.connection_error'), 'error');
+            }
+        }
+
+        // Renderizar gráfico: barras agrupadas Trabajado (rojo) vs Pagado (verde), acumulados,
+        // con la diferencia marcada en discontinuo sobre la barra más baja, y línea de horas como tendencia.
+        function renderChart() {
+            const canvas = document.getElementById('balanceChart');
+            const ctx = canvas.getContext('2d');
+
+            const all = (currentChartService === 'all'
+                ? [...records]
+                : records.filter(r => r.service === currentChartService)
+            ).sort((a, b) => {
+                const d = new Date(a.date) - new Date(b.date);
+                return d !== 0 ? d : new Date(a.created_at) - new Date(b.created_at);
             });
 
-            // Añadir punto inicial
-            if (data.length > 0) {
-                data.unshift({ x: data[0].x, y: 0 });
+            // Inicio del período
+            let cutoff = null;
+            if (currentChartPeriod === 'month') {
+                const now = new Date();
+                cutoff = new Date(now.getFullYear(), now.getMonth(), 1);
+            } else if (currentChartPeriod !== 'all') {
+                const days = { '1m': 30, '3m': 90, '6m': 180 }[currentChartPeriod];
+                cutoff = new Date();
+                cutoff.setDate(cutoff.getDate() - days);
+                cutoff.setHours(0, 0, 0, 0);
             }
+            const cutoffISO = cutoff ? localISODate(cutoff) : null;
 
-            if (balanceChart) {
-                balanceChart.destroy();
-            }
+            if (balanceChart) { balanceChart.destroy(); balanceChart = null; }
 
-            // Get primary color from CSS variable
-            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
-            const primaryRgba = `rgba(${parseInt(primaryColor.substr(1, 2), 16)}, ${parseInt(primaryColor.substr(3, 2), 16)}, ${parseInt(primaryColor.substr(5, 2), 16)}, 0.1)`;
+            // Saldo previo al período: se suma a la barra que corresponda para que
+            // Pagado − Trabajado sea SIEMPRE el saldo real (no empieza en 0 al filtrar).
+            let carry = 0;
+            const inPeriod = [];
+            all.forEach(r => {
+                if (cutoffISO && r.date < cutoffISO) {
+                    carry += r.type === 'work' ? -(parseFloat(r.total) || 0) : (parseFloat(r.amount) || 0);
+                } else {
+                    inPeriod.push(r);
+                }
+            });
+            carry = Math.round(carry * 100) / 100;
+            if (inPeriod.length === 0 && carry === 0) return;
+
+            // Agrupación según la amplitud del rango: día (≤45d), semana (≤200d) o mes
+            const firstISO = cutoffISO || inPeriod[0].date;
+            const spanDays = (new Date() - new Date(firstISO + 'T00:00:00')) / 86400000;
+            const unit = spanDays <= 45 ? 'day' : spanDays <= 200 ? 'week' : 'month';
+            const bucketOf = iso => {
+                const d = new Date(iso + 'T00:00:00');
+                if (unit === 'week') d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); // lunes
+                if (unit === 'month') d.setDate(1);
+                return localISODate(d);
+            };
+
+            let worked = carry < 0 ? -carry : 0;   // deuda previa cuenta como trabajado pendiente
+            let paid   = carry > 0 ?  carry : 0;   // crédito previo cuenta como pagado
+            let hours  = 0;
+            const buckets = new Map();
+            if (cutoffISO) buckets.set(bucketOf(cutoffISO), { worked, paid, hours });
+            inPeriod.forEach(r => {
+                if (r.type === 'work') {
+                    worked += parseFloat(r.total) || 0;
+                    hours  += parseFloat(r.hours) || 0;
+                } else {
+                    paid += parseFloat(r.amount) || 0;
+                }
+                buckets.set(bucketOf(r.date), { worked, paid, hours });
+            });
+            const r2 = v => Math.round(v * 100) / 100;
+            const points = [...buckets.entries()].map(([date, v]) => ({
+                date, worked: r2(v.worked), paid: r2(v.paid), hours: r2(v.hours), diff: r2(v.paid - v.worked)
+            }));
+
+            const cs = getComputedStyle(document.documentElement);
+            const css = n => cs.getPropertyValue(n).trim();
+            const secondary = css('--secondary');
+            const danger    = css('--danger');
+            const success   = css('--success');
+            const textSec   = css('--text-secondary');
+            const gridColor = css('--border') || 'rgba(0,0,0,0.07)';
+            const fontFam   = getComputedStyle(document.body).fontFamily;
+            const tickFont  = { size: 12, family: fontFam };
+
+            const toRgba = (hex, a) => {
+                const r = parseInt(hex.substr(1,2),16);
+                const g = parseInt(hex.substr(3,2),16);
+                const b = parseInt(hex.substr(5,2),16);
+                return `rgba(${r},${g},${b},${a})`;
+            };
+
+            const lineFill = (context) => {
+                const { ctx: c, chartArea } = context.chart;
+                if (!chartArea) return 'transparent';
+                const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                g.addColorStop(0, toRgba(secondary, 0.14));
+                g.addColorStop(1, toRgba(secondary, 0));
+                return g;
+            };
+
+            // Plugin: sobre la barra más baja, rectángulo discontinuo hasta la altura de la alta + diferencia
+            const diffPlugin = {
+                id: 'diffMarker',
+                afterDatasetsDraw(chart) {
+                    const mW = chart.getDatasetMeta(0), mP = chart.getDatasetMeta(1);
+                    if (mW.hidden || mP.hidden) return;
+                    const c = chart.ctx;
+                    points.forEach((p, i) => {
+                        const bw = mW.data[i], bp = mP.data[i];
+                        if (!bw || !bp || p.diff === 0) return;
+                        const low  = p.paid < p.worked ? bp : bw;   // barra más baja
+                        const high = p.paid < p.worked ? bw : bp;
+                        const color = p.diff > 0 ? success : danger;
+                        const w = low.width;
+                        const x0 = low.x - w / 2;
+                        c.save();
+                        c.setLineDash([4, 3]);
+                        c.lineWidth = 1.5;
+                        c.strokeStyle = color;
+                        c.fillStyle = toRgba(color, 0.08);
+                        c.fillRect(x0, high.y, w, low.y - high.y);
+                        c.strokeRect(x0 + 0.75, high.y, w - 1.5, low.y - high.y);
+                        c.setLineDash([]);
+                        if (w >= 16) {
+                            const txt = (p.diff > 0 ? '+' : '−') + formatCurrency(Math.abs(p.diff)).replace(' €', '€');
+                            c.font = `600 ${w >= 34 ? 11 : 9}px ${fontFam}`;
+                            c.fillStyle = color;
+                            c.textAlign = 'center';
+                            c.textBaseline = 'bottom';
+                            c.fillText(txt, low.x, high.y - 4);
+                        }
+                        c.restore();
+                    });
+                }
+            };
+
+            const barCommon = {
+                type: 'bar',
+                yAxisID: 'y',
+                borderWidth: 0,
+                borderRadius: 0,
+                barPercentage: 1.0,
+                categoryPercentage: 0.62,
+                maxBarThickness: 48,
+                pointStyle: 'rect',
+                order: 2
+            };
 
             balanceChart = new Chart(ctx, {
-                type: 'line',
+                plugins: [diffPlugin],
                 data: {
-                    datasets: [{
-                        label: App.t('chart.balance'),
-                        data: data,
-                        borderColor: primaryColor,
-                        backgroundColor: primaryRgba,
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
-                        pointBackgroundColor: primaryColor,
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2
-                    }]
+                    datasets: [
+                        { ...barCommon, label: 'Trabajado (€)', data: points.map(p => ({ x: p.date, y: p.worked })),
+                          backgroundColor: toRgba(danger, 0.82), hoverBackgroundColor: danger },
+                        { ...barCommon, label: 'Pagado (€)', data: points.map(p => ({ x: p.date, y: p.paid })),
+                          backgroundColor: toRgba(success, 0.82), hoverBackgroundColor: success },
+                        {
+                            type: 'line',
+                            label: 'Horas acumuladas',
+                            data: points.map(p => ({ x: p.date, y: p.hours })),
+                            yAxisID: 'y1',
+                            order: 1,
+                            borderColor: secondary,
+                            borderWidth: 2.5,
+                            backgroundColor: lineFill,
+                            fill: 'origin',
+                            tension: 0.4,
+                            cubicInterpolationMode: 'monotone',
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            pointHitRadius: 12,
+                            pointBackgroundColor: secondary,
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointStyle: 'circle'
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    layout: { padding: { top: 18 } },
                     plugins: {
                         legend: {
-                            display: false
+                            display: true,
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                usePointStyle: true,
+                                boxWidth: 10, boxHeight: 10,
+                                padding: 16,
+                                color: textSec,
+                                font: { size: 13, family: fontFam }
+                            }
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            backgroundColor: 'rgba(0,0,0,0.8)',
                             padding: 12,
-                            titleFont: { size: 14, weight: 'bold' },
-                            bodyFont: { size: 13 },
+                            cornerRadius: 8,
+                            usePointStyle: true,
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            footerFont: { size: 12, weight: 'bold' },
                             callbacks: {
-                                label: function(context) {
-                                    return App.t('chart.balance') + ': ' + formatCurrency(Math.abs(context.parsed.y)) +
-                                           (context.parsed.y < 0 ? ` (${App.t('chart.owes')})` : context.parsed.y > 0 ? ` (${App.t('chart.advance')})` : '');
+                                title(items) {
+                                    if (!items.length) return '';
+                                    const d = items[0].raw.x;
+                                    if (unit === 'week')  return 'Semana del ' + formatDate(d);
+                                    if (unit === 'month') return 'Mes ' + formatDate(d).slice(3);
+                                    return formatDate(d);
+                                },
+                                label(c) {
+                                    if (c.dataset.yAxisID === 'y1') return ` Horas: ${c.parsed.y.toFixed(1)}h`;
+                                    return ` ${c.dataset.label.replace(' (€)', '')}: ${formatCurrency(c.parsed.y)}`;
+                                },
+                                footer(items) {
+                                    if (!items.length) return '';
+                                    const d = points[items[0].dataIndex].diff;
+                                    if (d === 0) return 'Saldo cero';
+                                    return `Diferencia: ${d > 0 ? '+' : '−'}${formatCurrency(Math.abs(d))} · ${d > 0 ? 'a tu favor' : 'pendiente de pagar'}`;
                                 }
                             }
                         }
@@ -614,29 +996,240 @@
                     scales: {
                         x: {
                             type: 'time',
-                            time: {
-                                unit: 'day',
-                                displayFormats: {
-                                    day: 'dd/MM'
-                                }
-                            },
-                            grid: {
-                                display: false
-                            }
+                            offset: true,
+                            time: { unit, displayFormats: { day: 'dd/MM', week: 'dd/MM', month: 'MM/yyyy' } },
+                            grid: { display: false },
+                            border: { display: false },
+                            ticks: { maxTicksLimit: 10, color: textSec, font: tickFont, padding: 8 }
                         },
                         y: {
-                            ticks: {
-                                callback: function(value) {
-                                    return formatCurrency(Math.abs(value));
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            }
+                            position: 'left',
+                            beginAtZero: true,
+                            grace: '8%',
+                            grid: { color: gridColor, drawTicks: false },
+                            border: { display: false, dash: [4, 4] },
+                            ticks: { callback: v => formatCurrency(v), color: textSec, font: tickFont, padding: 10, maxTicksLimit: 6 }
+                        },
+                        y1: {
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: { display: false },
+                            border: { display: false },
+                            ticks: { callback: v => v.toFixed(0) + 'h', color: textSec, font: tickFont, padding: 10, maxTicksLimit: 6 }
                         }
                     }
                 }
             });
+        }
+
+        // ── Filtro de fechas ──────────────────────────────────────
+        function setHistoryPreset(months) {
+            document.getElementById('historyDateFrom').value = localISODate(monthsAgo(months));
+            document.getElementById('historyDateTo').value = '';
+            renderHistory();
+        }
+
+        // "Ver todos": quita fechas y el filtro de servicio/tipo
+        function clearAllHistoryFilters() {
+            currentFilter = 'all';
+            document.querySelectorAll('[data-filter]').forEach(b => b.classList.toggle('active', b.dataset.filter === 'all'));
+            clearDateFilter();
+        }
+
+        function clearDateFilter() {
+            document.getElementById('historyDateFrom').value = '';
+            document.getElementById('historyDateTo').value = '';
+            renderHistory();
+        }
+
+        // ── Resumen mensual ───────────────────────────────────────
+        function renderSummaryServiceButtons() {
+            const container = document.getElementById('summaryServiceSelector');
+            if (!container) return;
+            container.innerHTML =
+                `<button class="service-btn ${currentSummaryService === 'all' ? 'active' : ''}" data-summary-service="all">Todos</button>` +
+                services.map(s => `<button class="service-btn ${currentSummaryService === s.name ? 'active' : ''}" data-summary-service="${escapeHtml(s.name)}">${escapeHtml(s.name)}</button>`).join('');
+            container.querySelectorAll('[data-summary-service]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    container.querySelectorAll('[data-summary-service]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentSummaryService = btn.dataset.summaryService;
+                    renderMonthlySummary();
+                });
+            });
+        }
+
+        function setSummaryPreset(months) {
+            document.getElementById('summaryDateFrom').value = localISODate(summaryPresetStart(months));
+            document.getElementById('summaryDateTo').value = '';
+            renderMonthlySummary();
+        }
+
+        function clearAllSummaryFilters() {
+            currentSummaryService = 'all';
+            document.querySelectorAll('[data-summary-service]').forEach(b => b.classList.toggle('active', b.dataset.summaryService === 'all'));
+            document.getElementById('summaryDateFrom').value = '';
+            document.getElementById('summaryDateTo').value = '';
+            renderMonthlySummary();
+        }
+
+        function renderMonthlySummary() {
+            const container = document.getElementById('monthlySummaryContainer');
+            if (!container) return;
+
+            let filtered = currentSummaryService === 'all' ? records
+                : records.filter(r => r.service === currentSummaryService);
+
+            const allMonths = new Set(filtered.map(r => r.date.substring(0, 7))).size;
+            const dateFrom = document.getElementById('summaryDateFrom')?.value;
+            const dateTo   = document.getElementById('summaryDateTo')?.value;
+            if (dateFrom) filtered = filtered.filter(r => r.date >= dateFrom);
+            if (dateTo)   filtered = filtered.filter(r => r.date <= dateTo);
+            const shownMonths = new Set(filtered.map(r => r.date.substring(0, 7))).size;
+
+            document.querySelectorAll('#summaryPresets [data-months]').forEach(btn => {
+                const n = parseInt(btn.dataset.months, 10);
+                btn.classList.toggle('active', !dateTo && dateFrom === localISODate(summaryPresetStart(n)));
+            });
+            const countEl = document.getElementById('summaryCount');
+            if (countEl) {
+                countEl.innerHTML = (dateFrom || dateTo) && shownMonths < allMonths
+                    ? `<span>${shownMonths} de ${allMonths} meses</span>`
+                    : `<span>${shownMonths} meses</span>`;
+                if (dateFrom || dateTo || currentSummaryService !== 'all') {
+                    countEl.innerHTML += `<button class="service-btn" onclick="clearAllSummaryFilters()" title="Quitar todos los filtros"><iconify-icon icon="mdi:eye-outline" width="14" height="14"></iconify-icon> Ver todos</button>`;
+                }
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><iconify-icon icon="mdi:inbox-outline" width="48" height="48"></iconify-icon></div><p>${App.t('history.empty')}</p></div>`;
+                return;
+            }
+            const showWork = true, showPay = true, showBal = true;
+
+            const months = {};
+            filtered.forEach(r => {
+                const key = r.date.substring(0, 7);
+                if (!months[key]) months[key] = { hours: 0, cost: 0, paid: 0 };
+                if (r.type === 'work') {
+                    months[key].hours += parseFloat(r.hours) || 0;
+                    months[key].cost  += parseFloat(r.total) || 0;
+                } else {
+                    months[key].paid += parseFloat(r.amount) || 0;
+                }
+            });
+
+            const sorted = Object.entries(months).sort((a, b) => b[0].localeCompare(a[0]));
+
+            const monthName = key => {
+                const [y, m] = key.split('-');
+                return new Date(y, m - 1, 1).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+            };
+
+            const balColor = v => v < 0 ? 'var(--danger)' : v > 0 ? 'var(--success)' : 'var(--text-secondary)';
+
+            let totalH = 0, totalC = 0, totalP = 0;
+            const rows = sorted.map(([key, d]) => {
+                const bal = d.paid - d.cost;
+                totalH += d.hours; totalC += d.cost; totalP += d.paid;
+                return `<tr>
+                    <td class="month-name">${monthName(key)}</td>
+                    ${showWork ? `<td>${d.hours > 0 ? d.hours.toFixed(1) + 'h' : '—'}</td>
+                    <td>${d.cost > 0 ? formatCurrency(d.cost) : '—'}</td>` : ''}
+                    ${showPay ? `<td>${d.paid > 0 ? formatCurrency(d.paid) : '—'}</td>` : ''}
+                    ${showBal ? `<td style="color:${balColor(bal)}; font-weight:600;">${formatCurrency(bal)}</td>` : ''}
+                </tr>`;
+            }).join('');
+
+            const totalBal = totalP - totalC;
+            container.innerHTML = `
+                <div class="monthly-table-wrap"><table class="monthly-table">
+                    <thead>
+                        <tr>
+                            <th>Mes</th>
+                            ${showWork ? '<th>Horas</th><th>Trabajado</th>' : ''}
+                            ${showPay ? '<th>Pagado</th>' : ''}
+                            ${showBal ? '<th>Balance</th>' : ''}
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                    <tfoot>
+                        <tr>
+                            <td>Total</td>
+                            ${showWork ? `<td>${totalH.toFixed(1)}h</td><td>${formatCurrency(totalC)}</td>` : ''}
+                            ${showPay ? `<td>${formatCurrency(totalP)}</td>` : ''}
+                            ${showBal ? `<td style="color:${balColor(totalBal)}">${formatCurrency(totalBal)}</td>` : ''}
+                        </tr>
+                    </tfoot>
+                </table></div>`;
+        }
+
+        // ── Compartir resumen ─────────────────────────────────────
+        function shareResumen() {
+            const { balance, totalWorked, totalPaid, totalHours } = calculateBalance();
+            const now = new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+
+            let text = `📊 Gestión de Pagos — ${now}\n\n`;
+            text += `⏱ Horas trabajadas: ${totalHours.toFixed(1)}h\n`;
+            text += `💼 Total trabajado: ${totalWorked.toFixed(2).replace('.', ',')} €\n`;
+            text += `✅ Total pagado: ${totalPaid.toFixed(2).replace('.', ',')} €\n`;
+            if (balance < 0) {
+                text += `⚠️ Pendiente de pago: ${Math.abs(balance).toFixed(2).replace('.', ',')} €`;
+            } else if (balance > 0) {
+                text += `💚 A tu favor: ${balance.toFixed(2).replace('.', ',')} €`;
+            } else {
+                text += `✅ Todo al día`;
+            }
+
+            copyToClipboard(text);
+        }
+
+        function copyToClipboard(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.cssText = 'position:fixed;top:-999px;left:-999px;opacity:0;';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showAlert('✓ Resumen copiado al portapapeles', 'success');
+            } catch {
+                showShareModal(text);
+            }
+            document.body.removeChild(ta);
+        }
+
+        function showShareModal(text) {
+            // Elimina modal previo si existe
+            document.getElementById('shareModal')?.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'shareModal';
+            modal.style.cssText = `
+                position:fixed; inset:0; background:rgba(0,0,0,0.5);
+                display:flex; align-items:center; justify-content:center;
+                z-index:9999; padding:1rem;
+            `;
+            modal.innerHTML = `
+                <div style="background:var(--bg-card); border-radius:16px; padding:1.5rem;
+                            max-width:480px; width:100%; box-shadow:var(--shadow-hover);">
+                    <div style="font-weight:700; margin-bottom:1rem; font-size:1rem;">
+                        📋 Resumen — copia y pega
+                    </div>
+                    <textarea readonly style="width:100%; height:160px; resize:none;
+                        font-family:monospace; font-size:0.85rem; padding:0.75rem;
+                        border-radius:10px; border:1.5px solid var(--border);
+                        background:var(--inner-bg); color:var(--text-primary);"
+                    >${text}</textarea>
+                    <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem;">
+                        <button onclick="document.getElementById('shareModal').remove()"
+                            class="btn btn-small">Cerrar</button>
+                    </div>
+                </div>`;
+            modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+            document.body.appendChild(modal);
+            modal.querySelector('textarea').select();
         }
 
         // Exportar a CSV

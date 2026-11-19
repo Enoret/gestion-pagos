@@ -1,8 +1,6 @@
-version: "3.8"
-
 services:
   gestion-pagos:
-    image: mbraut/gestion-pagos:latest
+    image: mbraut/gestion-pagos:2.1.0   # Cambia a :latest para recibir actualizaciones automáticas
     container_name: gestion-pagos
     ports:
       - "8080:80"
@@ -12,3 +10,6 @@ services:
 
 volumes:
   gestion-pagos-data:
+    # Volumen nombrado gestionado por Docker.
+    # Persiste base de datos, servicios, tema, config Telegram y backups.
+    # Al actualizar la imagen, los datos se conservan intactos.

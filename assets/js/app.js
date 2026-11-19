@@ -231,8 +231,18 @@ const App = (function() {
 
         /**
          * Get Iconify element for a service
+         * Accepts a name string or a service object with optional .icon field
          */
-        getServiceIcon(name) {
+        getServiceIcon(nameOrService) {
+            let customIcon = null;
+            let name = nameOrService;
+            if (typeof nameOrService === 'object' && nameOrService !== null) {
+                customIcon = nameOrService.icon || null;
+                name = nameOrService.name;
+            }
+            if (customIcon) {
+                return `<iconify-icon icon="${customIcon}" width="20" height="20"></iconify-icon>`;
+            }
             const key = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
             const icon = this.serviceMap[key] || 'mdi:hammer-wrench';
             return `<iconify-icon icon="${icon}" width="20" height="20"></iconify-icon>`;
@@ -271,8 +281,9 @@ const App = (function() {
                     return;
                 }
 
-                fetch('data/theme.json')
+                fetch('api/admin.php?action=getTheme')
                     .then(response => response.ok ? response.json() : null)
+                    .then(res => res && res.data)
                     .then(themeData => {
                         if (themeData) {
                             this.apply(themeData);

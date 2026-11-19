@@ -1,0 +1,16 @@
+# Datos personales y de ejecución — NUNCA al repositorio
+data/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+telegram*.json
+*.log
+share/
+
+# Sistema / editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo

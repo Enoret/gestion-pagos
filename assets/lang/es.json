@@ -116,7 +116,7 @@
         "service_name": "Nombre del Servicio",
         "service_name_placeholder": "Ej: Pintor, Luz, Gas...",
         "default_rate": "Tarifa por defecto",
-        "add_service": "Anadir Servicio",
+        "add_service": "Añadir Servicio",
         "edit": "Editar",
         "no_services": "No hay servicios configurados todavia",
         "rate_label": "Tarifa",
@@ -148,8 +148,8 @@
         "light_mode": "Modo claro",
         "system_mode": "Segun sistema",
         "delete_all_entries": "Borrar Todas las Entradas",
-        "delete_all_confirm": "ATENCION: Esto eliminara TODOS los registros de trabajos y pagos.\n\nEsta accion no se puede deshacer. Estas seguro?",
-        "delete_all_confirm2": "ULTIMA CONFIRMACION: Se borraran todos los datos permanentemente.\n\nEscribe OK para confirmar.",
+        "delete_all_confirm": "⚠️ ATENCIÓN: Esto eliminará TODOS los registros de trabajos y pagos.\n\nSe recomienda crear un backup antes de continuar.\n\n¿Estás seguro?",
+        "delete_all_confirm2": "🔴 ÚLTIMA CONFIRMACIÓN\n\nSe borrarán todos los datos permanentemente y no se podrán recuperar.\n\nEscribe OK para confirmar.",
         "all_entries_deleted": "Todas las entradas han sido eliminadas correctamente"
     }
 }
